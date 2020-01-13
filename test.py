@@ -14,12 +14,13 @@ while(True):
     ret, frame = cap.read()    # Read 결과와 frame
 
     if(ret) :
-        image = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)    # 입력 받은 화면 Gray로 변환
-        image = cv2.GaussianBlur(image, (5, 5), 0)
-        result1 = DPP.filter_binary(image)
-        result2 = DPP.filter_binaryinv(image)
-        cv2.imshow('binary', result1)    # 컬러 화면 출력
-        cv2.imshow('binaryinv', result2)    # 컬러 화면 출력
+        #image = cv2.cvtColor(frame,  cv2.COLOR_BGR2GRAY)    # 입력 받은 화면 Gray로 변환
+        image = cv2.GaussianBlur(frame, (5, 5), 0)
+        image = cv2.bilateralFilter(image, 15, 75, 75)
+        #result1 = DPP.filter_binary(image)
+        #result2 = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 21, 5)
+        cv2.imshow('binary', image)    # 컬러 화면 출력
+        #cv2.imshow('binaryinv', result2)    # 컬러 화면 출력
 
 
         #cv2.imshow('frame_gray', gray)    # Gray 화면 출력

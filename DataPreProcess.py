@@ -20,6 +20,9 @@ upper_white = (255, 255, 255)
 
 # 차선의 주황색을 검출하기 위한 함수 #
 def find_line_orange(img):
+    # 가우시안55 필터 적용
+    img = cv2.GaussianBlur(img, (5, 5), 0)
+
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     # 색상 범위를 제한하여 mask 생성
@@ -33,6 +36,9 @@ def find_line_orange(img):
 
 # 차선의 하얀색을 검출하기 위한 함수 #
 def find_line_white(img):
+    #가우시안55, bilateral 필터적용
+    img = cv2.GaussianBlur(img, (5, 5), 0)
+    img = cv2.bilateralFilter(img, 15, 75, 75)
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     # 색상 범위를 제한하여 mask 생성
@@ -56,13 +62,21 @@ def merge_lines(img1, img2, pixel):
 
     return img_result
 
-def filter_binary(img):
-    ret, img_result = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
-    return img_result
-def filter_binaryinv(img):
-    ret, img_result = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY_INV)
-    return img_result
+def filter_edge(img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # 입력 받은 화면 Gray로 변환
+    img = cv2.Canny(img, threshold1 = 200, threshold2=300)
+    img = cv2.GaussianBlur(img, (5, 5), 0)
 
+    for i in range(50):
+        for j in range(160):
+            img[i, j] = 0  # 검은색으로 채움
+    return img
+
+def filter_color(img):
+    line_orange = find_line_orange(img)
+    line_white = find_line_white(img)
+    img_result = merge_lines(line_orange, line_white, 50)
+    return img_result
 
 def data_preprocess():
     path_read = './test_image'
@@ -79,13 +93,17 @@ def data_preprocess():
     for i in range(len(file_list_read)):
         image = cv2.imread("test_image/"+file_list_read[i])  # 이미지 읽기
 
+
         # 이미지 전처리 과정
-        line_orange = find_line_orange(image)
-        line_white = find_line_white(image)
-        line_image = merge_lines(line_orange, line_white, 50)
+        #image = filter_color(image)
+        image = filter_edge(image)
 
         # 이미지 저장
-        cv2.imwrite("train_image/"+file_list_read[i], line_image)
+        # cv2.imwrite("train_image/"+file_list_read[i], line_image)
+
+        # 변환 중인 이미지 보여줌
+        cv2.imshow('a', image)
+        cv2.waitKey(50)
 
         # 변환 진행과정 표시
         print("{} of {}".format(i+1, len(file_list_read)+1))
