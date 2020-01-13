@@ -11,18 +11,27 @@ import cv2
 import os
 
 # 색상 범위 - HSV - 색상(Hue), 채도(Saturation), 명도(Value)
+# 원본
+# lower_orange = (8, 50, 50)
+# upper_orange = (20, 255, 255)
+#
+# lower_white = (0, 0, 210)
+# upper_white = (255, 255, 255)
+
+# 테스트값
 lower_orange = (8, 50, 50)
 upper_orange = (20, 255, 255)
 
-lower_white = (0, 0, 210)
-upper_white = (255, 255, 255)
+lower_white = (0, 0, 200)
+upper_white = (255, 100, 255)
+
+
 
 
 # 차선의 주황색을 검출하기 위한 함수 #
 def find_line_orange(img):
     # 가우시안55 필터 적용
     img = cv2.GaussianBlur(img, (5, 5), 0)
-
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     # 색상 범위를 제한하여 mask 생성
@@ -54,6 +63,12 @@ def find_line_white(img):
 # img1, img2 인자는 합성할 이미지
 # pixel 은 이미지 위에서부터 제거할 픽셀수
 def merge_lines(img1, img2, pixel):
+
+    for i in range(70):
+        for j in range(160):
+            #print(img1[i, j])
+            img1[i+50, j] = [0, 0, 255]
+
     img_result = cv2.bitwise_or(img1, img2)
 
     for i in range(pixel):
@@ -95,8 +110,8 @@ def data_preprocess():
 
 
         # 이미지 전처리 과정
-        #image = filter_color(image)
-        image = filter_edge(image)
+        image = filter_color(image)
+        #image = filter_edge(image)
 
         # 이미지 저장
         # cv2.imwrite("train_image/"+file_list_read[i], line_image)
@@ -106,6 +121,6 @@ def data_preprocess():
         cv2.waitKey(50)
 
         # 변환 진행과정 표시
-        print("{} of {}".format(i+1, len(file_list_read)+1))
+        print("{} of {} : {}".format(i+1, len(file_list_read)+1, file_list_read[i]))
 
     print("Preprocessing Complete!")
