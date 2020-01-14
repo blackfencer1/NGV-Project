@@ -64,6 +64,8 @@ def filter_edge(img):
     img = cv2.GaussianBlur(img, (5, 5), 0)
     img = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
     img = cv2.convertScaleAbs(img)
+    img = cv2.cvtColor(np.copy(img), cv2.COLOR_GRAY2BGR)
+    img = cv2.cvtColor(np.copy(img), cv2.COLOR_RGB2HLS)
     for i in range(50):
         for j in range(160):
             img[i, j] = 0  # 검은색으로 채움
