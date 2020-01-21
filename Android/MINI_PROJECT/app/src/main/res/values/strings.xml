@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">BlackFencer</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_add_content">Map</string>
+    <string name="title_activity_detail_page2">Map</string>
+    <string name="title_activity_detail_view">Map</string>
+</resources>
