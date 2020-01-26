@@ -89,9 +89,6 @@ def filter_edge(img):
 
 def filter_color(img):
     line_orange = find_line_orange(img)
-    line_white = find_line_white(img)
-    img_result = merge_lines(line_orange, line_white, 50)
-    return img_result
 
 def data_preprocess():
     path_read = './test_image'
