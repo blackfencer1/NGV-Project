@@ -7,6 +7,9 @@
 [수정 - 2020년1월20일] - object검출(yolo) 좌표를 받아 이미지 합성해주는 함수추가
                         온도 이미지 합성해주는 함수추가
 [수정 - 2020년1월27일] - 온도데이터 배열to이미지 함수추가
+[수정 - 2020년1월28일] - 실제 센서에서 받은 hetadata csv 읽어오기
+                        csv를 2차원numpy배열로 변환하는 함수추가
+                        cvs를 바로 image로 변환하는 함수추가(값에 따라 색차이 변경 미작성)
 '''
 
 import cv2
@@ -17,6 +20,7 @@ import time  # 시간 측정을 위한 라이브러
 # 색
 color_yolo = (150, 110, 250)
 color_black = (0, 0, 0)
+color_red = (0, 0, 255)
 color_white = (255, 255, 255)
 
 
@@ -107,6 +111,33 @@ def het_num2img(num_array):
 
     return img
 
+# csv형식의 hetadata를 img로 바꿔주는 함수 ########################################
+# hetadata의 csv는 한줄에 768, 즉 1frame이 할당되어 저장이 된다.
+# 몇가지 문제점 센서에서 csv로 저장하는 과정에서 [t, t, t]같이 대괄호가 생성이 된다.
+# 이때 발생하는 nan값을 앞뒤 온도값으로 대체
+def csv2img(csv):
+    csv[0] = csv[1]
+    csv[767] = csv[766]
+
+    img = np.zeros((32, 24, 3), dtype=np.uint8)
+    for i in range(32):
+        for j in range(24):
+            img[i, j] = csv[i*24 + j]
+
+    return img
+
+# 한줄형태의 hetadata를 이차원 배열로 바꿔주는 함수 ###
+def flat2arr(csv):
+    arr = np.zeros((32, 24), dtype=np.uint8)
+    csv[0] = csv[1]
+    csv[767] = csv[766]
+
+    for i in range(32):
+        for j in range(24):
+            #arr[i, j] = csv[i * 24 + j]
+            arr[i, j] = csv[i * 24 + j] - 25
+
+    return arr
 
 # yolo에서 받은 좌표와 물체크기를 이미지 합성
 def image_object(img, center_x, center_y, width, height):
@@ -117,7 +148,7 @@ def image_object(img, center_x, center_y, width, height):
           (center_x + width / 2, center_y + height / 2),
           (center_x + width / 2, center_y - height / 2)]],
         dtype=np.int32)
-    cv2.fillPoly(img, vertices, color_yolo)
+    cv2.fillPoly(img, vertices, color_red)
 
     return img
 
@@ -132,13 +163,14 @@ def display():
 
     ## 임시방편 임의의 온도배열 생성 12x6 ###
     ## 온도 데이터배열에서 이미지 전환 테스트 코드
-    hetadata = np.zeros((80, 15), dtype=np.int8)
-    for i in range(80):
-        for j in range(15):
-            if i < 40:
-                hetadata[i, j] = (20 - i)
-            else:
-                hetadata[i, j] = (i - 60)
+    # hetadata = np.zeros((80, 15), dtype=np.int8)
+    # for i in range(80):
+    #     for j in range(15):
+    #         if i < 40:
+    #             hetadata[i, j] = (20 - i)
+    #         else:
+    #             hetadata[i, j] = (i - 60)
+
     # hetadata = np.array([[-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10],
     #                      [-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10],
     #                      [-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10],
@@ -155,10 +187,15 @@ def display():
     #                      [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
     #                      [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
     #                      [20, 20, 20, 20, 20, 16, 17, 18, 19, 20, 21, 0]])
-    het_image = het_num2img(hetadata)
-    het_image = cv2.resize(het_image, (300, 300), interpolation=cv2.INTER_CUBIC)
-    cv2.imshow('het data image', het_image)
-    cv2.waitKey(10)
+
+    het_data = np.genfromtxt('test_hetadata/result1.csv', delimiter=',')
+    #het_image = csv2img(het_csv[0, :])
+    het_arr = flat2arr(het_data[0, :])
+    het_image = het_num2img(het_arr)
+
+    #het_image = cv2.resize(het_image, (300, 300), interpolation=cv2.INTER_CUBIC)
+    #cv2.imshow('het data image', het_image)
+    #cv2.waitKey(10)
     ############################################
     #het_image = cv2.imread("het_image.JPG")
 
