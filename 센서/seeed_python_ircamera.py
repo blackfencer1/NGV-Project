@@ -95,11 +95,14 @@ class DataReader(QThread):
             nanCount = 0
 
             hetData = self.readData()
-            print(hetData)
-            #reporttime = (time.strftime("%H:%M:%S"))
-            csvresult = open("/home/pi/result1.csv","a")
-            csvresult.write(str(hetData) + "\n")
-            csvresult.close
+        #[]없이 출력 cmd 
+            print(*hetData)
+                #5도 이하의 물체가 검출됬을때만 파일로 데이터 값을 저장
+            for item in hetData:
+                if item <= 5:
+                   csvresult = open("/home/pi/results/result_%s.csv" %self.frameCount, "a")
+                   csvresult.write(str(hetData) + "\n")
+                   csvresult.close
 
             if  len(hetData) < 768 :
                 continue
