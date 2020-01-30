@@ -1,22 +1,10 @@
+# -*- coding: utf-8 -*-
 import sys
 import threading
 import seeed_mlx90640
 import time
 import os
 from serial import Serial
-from PyQt5.QtWidgets import (
-        QApplication,
-        QGraphicsView,
-        QGraphicsScene,
-        QGraphicsPixmapItem,
-        QGraphicsTextItem,
-        QGraphicsEllipseItem,
-        QGraphicsLineItem,
-        QGraphicsBlurEffect
-    )
-from PyQt5.QtGui import QPainter, QBrush, QColor, QFont, QPixmap
-from PyQt5.QtCore import QThread, QObject, pyqtSignal, QPointF, Qt
-
 
 def mapValue(value, curMin, curMax, desMin, desMax):
     curDistance = value - curMax
@@ -95,12 +83,12 @@ class DataReader(QThread):
             nanCount = 0
 
             hetData = self.readData()
-        #[]없이 출력 cmd 
-            print(*hetData)
-                #5도 이하의 물체가 검출됬을때만 파일로 데이터 값을 저장
+            #print(*hetData)
+            #saving data when object gets under 5 degree
             for item in hetData:
                 if item <= 5:
-                   csvresult = open("/home/pi/results/result_%s.csv" %self.frameCount, "a")
+                   #saving data with file name number of frame(still working..)
+                   csvresult = open("/home/pi/results/result_%s.csv" %self.frameCount, "a")           
                    csvresult.write(str(hetData) + "\n")
                    csvresult.close
 
@@ -175,7 +163,7 @@ class DataReader(QThread):
             print("data->" + str(self.frameCount))
         self.com.close()
 
-
+'''
 class painter(QGraphicsView):
     narrowRatio = int(sys.argv[4]) if len(sys.argv) >= 5 else 1
     useBlur = sys.argv[5] != "False" if len(sys.argv) >= 6 else True
@@ -331,3 +319,4 @@ def run():
     
 
 run()
+'''
