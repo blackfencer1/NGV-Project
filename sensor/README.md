@@ -1,3 +1,10 @@
+# I2C 통신속도 설정
+```
+cd /boot/
+sudo nano config.txt
+```
+dtparam=i2c1_baudrate=800000 추가
+
 # Seeed IRCamera
 
 The IRCamera is a 32x24 thermal imagery sensor.
