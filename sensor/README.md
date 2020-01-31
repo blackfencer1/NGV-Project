@@ -5,6 +5,12 @@ sudo nano config.txt
 ```
 dtparam=i2c1_baudrate=800000 추가
 
+# mlx90640의 pyqt5 ImportError 해결
+```
+sudo apt-get update
+sudo apt-get install python3-pyqt5
+```
+
 # Seeed IRCamera
 
 The IRCamera is a 32x24 thermal imagery sensor.
