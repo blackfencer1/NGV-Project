@@ -37,7 +37,8 @@ def drive(cfg, model_path=None, use_joystick=False, model_type=None, camera_type
     Each part runs as a job in the Vehicle loop, calling either
     it's run or run_threaded method depending on the constructor flag `threaded`.
     All parts are updated one after another at the framerate given in
-    cfg.DRIVE_LOOP_HZ assuming each part finishes processing in a timely manner.
+    cfg.DRIVE_LOOP_HZ assuming each part finishes processing in a
+    timely manner.
     Parts may have named outputs and inputs. The framework handles passing named outputs
     to parts requesting the same named input.
     '''
@@ -580,6 +581,7 @@ if __name__ == '__main__':
         model_type = args['--type']
         continuous = args['--continuous']
         aug = args['--aug']     
+
 
         dirs = preprocessFileList( args['--file'] )
         if tub is not None:
