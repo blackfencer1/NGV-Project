@@ -10,6 +10,9 @@
 [수정 - 2020년1월28일] - 실제 센서에서 받은 hetadata csv 읽어오기
                         csv를 2차원numpy배열로 변환하는 함수추가
                         cvs를 바로 image로 변환하는 함수추가(값에 따라 색차이 변경 미작성)
+[수정 - 2020년2월07일] - image_het 함수 수정
+                        도로 이미지위에 실제 온도값을 알 수 있도록
+                        온도이미지가 보이도록 함수 수정
 '''
 
 import cv2
@@ -22,6 +25,13 @@ color_yolo = (150, 110, 250)
 color_black = (0, 0, 0)
 color_red = (0, 0, 255)
 color_white = (255, 255, 255)
+
+# 20년02월04일 측정한 온도매핑 좌표 #
+corner = [[53, 59],
+          [30, 94],
+          [128, 94],
+          [110, 59]]    # 160X120 기준
+####
 
 
 # ROI 설정하는 함수 (ROI영역이 사각형이 아니더라도 가능함)
@@ -66,7 +76,22 @@ def filter_edge(img):
 
 
 # 온도센서로부터 이미지를 받아서 특정좌표에 이미지 합성
-def image_het(img, img_het, center_x, center_y):
+def image_het(img, img_het, _corner):
+
+    # 온도이미지 mask 생성
+    h, w = img_het.shape[:2]
+    rows, cols, ch = img.shape
+
+    pts1 = np.float32([[0, 0], [w, 0], [0, h], [w, h]])
+    pts2 = np.float32([_corner[0], _corner[3], _corner[1], _corner[2]])
+
+    M = cv2.getPerspectiveTransform(pts1, pts2)
+    img_mask = cv2.warpPerspective(img_het, M, (cols, rows))
+    print("ima mask type", img_mask.astype)
+    print("img type ", img.astype)
+
+    img_result = cv2.add(img, img_mask)
+    '''
     w = 80
     h = 80
 
@@ -83,8 +108,8 @@ def image_het(img, img_het, center_x, center_y):
     img_het = cv2.resize(img_het, (w, h), interpolation=cv2.INTER_CUBIC)
     _img_roi = cv2.add(img_het, roi_het)
     np.copyto(roi_het, _img_roi)
-
-    return img
+    '''
+    return img_result
 
 # 온도데이터 배열을 이미지로 바꿔주는 함수
 def het_num2img(num_array):
@@ -188,16 +213,25 @@ def display():
     #                      [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
     #                      [20, 20, 20, 20, 20, 16, 17, 18, 19, 20, 21, 0]])
 
-    het_data = np.genfromtxt('test_hetadata/result1.csv', delimiter=',')
+    #het_data = np.genfromtxt('test_hetadata/result1.csv', delimiter=',')
     #het_image = csv2img(het_csv[0, :])
-    het_arr = flat2arr(het_data[0, :])
-    het_image = het_num2img(het_arr)
+    #het_arr = flat2arr(het_data[0, :])
+    #het_image = het_num2img(het_arr)
+
+    ### 온도매핑 모서리 160x120사이즈를 800x480사이즈로 바꿈
+    for i in range(4):
+        for j in range(2):
+            if j is 0:
+                corner[i][j] = corner[i][j] * 5
+            else:
+                corner[i][j] = corner[i][j] * 4
+    ####
 
     #het_image = cv2.resize(het_image, (300, 300), interpolation=cv2.INTER_CUBIC)
     #cv2.imshow('het data image', het_image)
     #cv2.waitKey(10)
     ############################################
-    #het_image = cv2.imread("het_image.JPG")
+    het_image = cv2.imread("het_image.JPG")
 
     for i in range(len(file_list_read)):
         one_process_time = time.time()  # 프로세스 하나 진행시간 측정
@@ -214,7 +248,7 @@ def display():
         ###################################
 
         # 온도 이미지 합성
-        img_het = image_het(img_2, het_image, 300, 300)
+        img_het = image_het(img_2, het_image, corner)
         img_het_object = image_object(img_het, 300, 200, 100, 50)
 
         # cv2.imshow('그냥 이미지', img)
