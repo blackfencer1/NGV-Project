@@ -128,7 +128,7 @@ def csv2img(csv):
 
 # 한줄형태의 hetadata를 이차원 배열로 바꿔주는 함수 ###
 def flat2arr(csv):
-    arr = np.zeros((32, 24), dtype=np.uint8)
+    arr = np.zeros((32, 24), dtype=np.int8)
     csv[0] = csv[1]
     csv[767] = csv[766]
 
