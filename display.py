@@ -82,7 +82,7 @@ def image_het(img, img_het, _corner):
     h, w = img_het.shape[:2]
     rows, cols, ch = img.shape
 
-    pts1 = np.float32([[0, 0], [w, 0], [0, h], [w, h]])
+    pts1 = np.float32([[w, 0], [0, 0], [w, h], [0, h]]) # 좌우반전 추가
     pts2 = np.float32([_corner[0], _corner[3], _corner[1], _corner[2]])
 
     M = cv2.getPerspectiveTransform(pts1, pts2)
