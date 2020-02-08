@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import os
 import time  # 시간 측정을 위한 라이브러
+import threading
 
 # 색
 color_yolo = (150, 110, 250)
@@ -286,6 +287,7 @@ def display():
         cv2.waitKey(50)
 
     print("process total time : {}".format(time.time() - process_time))  # 프로세스 진행시간 표시
+
 
 
 if __name__ == '__main__':
