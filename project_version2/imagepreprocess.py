@@ -83,28 +83,12 @@ def image_het(img, img_het, _corner):
     print("img type ", img.astype)
 
     img_result = cv2.add(img, img_mask)
-    '''
-    w = 80
-    h = 80
 
-    # ROI 영역
-    vertices = np.array(
-        [[(center_x - w / 2, center_y - h / 2),
-          (center_x - w / 2, center_y + h / 2),
-          (center_x + w / 2, center_y + h / 2),
-          (center_x + w / 2, center_y - h / 2)]],
-        dtype=np.int32)
-    #cv2.fillPoly(img, vertices, (0, 0, 0)) # 주석을 풀면 도로이미지 위에 그대로 합성됨
-
-    roi_het = img[center_y - int(h/2): center_y + int(h/2), center_x - int(w/2): center_x + int(w/2)]
-    img_het = cv2.resize(img_het, (w, h), interpolation=cv2.INTER_CUBIC)
-    _img_roi = cv2.add(img_het, roi_het)
-    np.copyto(roi_het, _img_roi)
-    '''
     return img_result
 
+
 # 온도데이터 배열을 이미지로 바꿔주는 함수
-def het_num2img(num_array):
+def het_arr2img(num_array):
     print(num_array[0, 0])
     print(num_array[0, 11])
     h, w = num_array.shape[:2]  # 배열의 너비, 높이
@@ -244,7 +228,7 @@ def display():
     #het_data = np.genfromtxt('test_hetadata/result1.csv', delimiter=',')
     #het_image = csv2img(het_csv[0, :])
     #het_arr = flat2arr(het_data[0, :])
-    #het_image = het_num2img(het_arr)
+    #het_image = het_arr2img(het_arr)
 
     ### 온도매핑 모서리 160x120사이즈를 800x480사이즈로 바꿈
     for i in range(4):
