@@ -85,7 +85,7 @@ class SockYolo(threading.Thread):
         while True:
             encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
             result, frame_s = cv2.imencode('.jpg', frame_s, encode_param)
-            data = np.array(frmae_s)
+            data = np.array(frame_s)
             stringData = data.tostring()
             sock.sendall((str(len(stringData))).encode().ljust(16) + stringData)
 
