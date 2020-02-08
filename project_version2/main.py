@@ -13,6 +13,7 @@ import ImagePreProcess as ipp
 ######## 전역변수 #########
 frame = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_edge = np.zeros(shape=(480, 640, 3), dtype="uint8")
+frame_display = np.zeros(shape=(480, 800, 3), dtype="uint8")
 array_het = []
 frame_het = np.zeros(shape=(480, 640, 3), dtype="uint8")
 location_yolo = None
@@ -22,21 +23,21 @@ location_yolo = None
 
 def main():
     global frame
-    global frame_edge
 
-    cam = cv2.VideoCapture(1)
+    cam = cv2.VideoCapture(0)
 
     # Thread start
     myDetectLine = DetectLane()
     myDetectLine.start()
     myHetImage = GenerateHetImage()
     #myHetImage.start()
+    myDisplay = GenerateDisplayImage()
+    myDisplay.start()
 
     while True:
         _, frame = cam.read()
 
         cv2.imshow("frame", frame)
-        cv2.imshow("frame_line", frame_edge)
 
         # 키누르면 main 종료
         if cv2.waitKey(1) > 0:
@@ -85,6 +86,36 @@ class GenerateHetImage(threading.Thread):
     def shutdown(self):
         pass
 
+
+class GenerateDisplayImage(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.frame_display = np.zeros(shape=(480, 800, 3), dtype="uint8")
+        print("[Thread] Generate Image(display)")
+
+    def run(self):
+        global frame_edge
+        global frame_display
+        global frame_het
+        global location_yolo
+        while True:
+            #frame = ipp.merge_image_het(frame_edge, frame_het)
+            frame = frame_edge #임시방편
+
+            if location_yolo is None:
+                pass
+            else:
+                frame = ipp.image_object(frame, location_yolo[0], location_yolo[1],
+                                         location_yolo[2], location_yolo[3])
+
+            self.frame_display = cv2.resize(frame, (800, 480), interpolation=cv2.INTER_CUBIC)
+
+            cv2.imshow("Display", self.frame_display)
+            cv2.waitKey(1)
+            time.sleep(0.01)
+
+    def shutdonw(self):
+        pass
 
 if __name__ == '__main__':
     print("### main start ###")

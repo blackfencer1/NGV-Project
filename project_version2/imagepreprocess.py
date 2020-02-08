@@ -68,8 +68,12 @@ def filter_edge(img):
 
 
 # 온도센서로부터 이미지를 받아서 특정좌표에 이미지 합성
-def image_het(img, img_het, _corner):
+def merge_image_het(img, img_het, _corner=[[53, 59],
+          [30, 94],
+          [128, 94],
+          [110, 59]]):
 
+    print("corner :", _corner)
     # 온도이미지 mask 생성
     h, w = img_het.shape[:2]
     rows, cols, ch = img.shape
@@ -79,8 +83,6 @@ def image_het(img, img_het, _corner):
 
     M = cv2.getPerspectiveTransform(pts1, pts2)
     img_mask = cv2.warpPerspective(img_het, M, (cols, rows))
-    print("ima mask type", img_mask.astype)
-    print("img type ", img.astype)
 
     img_result = cv2.add(img, img_mask)
 
