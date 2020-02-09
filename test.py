@@ -2,6 +2,7 @@
 코드 작성일시 : 2020년 2월 2일
 코드 내용 : 각종 테스트를 위한 임시코드들
 """
+
 import threading
 import cv2
 import numpy as np
@@ -11,112 +12,81 @@ import display
 
 from random import *
 
+def nothing():
+    pass
 
-class data_send(threading.Thread):
-    def __init__(self):
-        self.isData = False
-        print("### data_send thread __init__ ###")
-        threading.Thread.__init__(self)
-        threading.Thread.name = "thread_data_send"
+cam = cv2.VideoCapture(1)
 
-    def run(self):
-        print("### data_send thread run ###")
-        while True:
-            number_random = randint(1, 100)
-            if number_random < 20:
-                self.isData = True
+cv2.namedWindow("Canny Edge")
+cv2.createTrackbar('low threshold', 'Canny Edge', 0, 1000, nothing)
+cv2.createTrackbar('high threshold', 'Canny Edge', 0, 1000, nothing)
 
-                self.location_x = randint(300, 500)
-                self.location_y = randint(100, 300)
-                self.scale_w = randint(50, 100)
-                self.scale_h = randint(50, 100)
+cv2.setTrackbarPos('low threshold', 'Canny Edge', 50)
+cv2.setTrackbarPos('high threshold', 'Canny Edge', 150)
 
-            else:
-                time.sleep(0.01)
-                self.isData = False
+while True:
+    _, img = cam.read()
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    def shutdonw(self):
-        pass
+    low = cv2.getTrackbarPos('low threshold', 'Canny Edge')
+    high = cv2.getTrackbarPos('high threshold', 'Canny Edge')
 
+    img_canny = cv2.Canny(img_gray, low, high)
 
-class data_receive(threading.Thread):
+    cv2.imshow("Canny Edge", img_canny)
+    cv2.imshow("img", img)
 
-    def __init__(self, send_data_class):
-        print("### data_receive thread __init__ ###")
-        threading.Thread.__init__(self)
-        threading.Thread.name = "thread_data_receive"
-        self.send_data = send_data_class
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
 
-    def run(self):
-        print("### data_receive thread run ###")
-        while True:
-            if self.send_data.isData is True:
-                self.location_x = self.send_data.location_x
-                self.location_y = self.send_data.location_y
-                self.scale_w = self.send_data.scale_w
-                self.scale_h = self.send_data.scale_w
-                time.sleep(0.01)
-            else:
-                time.sleep(0.01)
-                pass
+'''
+import cv2
+import sys
+import math
+import cv2 as cv
+import numpy as np
 
-    def shutdown(self):
-        pass
+cap = cv2.VideoCapture(1)
 
+while (True):
+    ret, src = cap.read()
+    #print(src)
 
-class image_processing(threading.Thread):
-    def __init__(self):
-        print("### image_process thread __init__ ###")
-        threading.Thread.__init__(self)
-        threading.Thread.name = "thread_image_process"
-        self.frame = np.zeros((480, 800, 3), dtype=np.uint8)
+    src = cv2.resize(src, (640, 360), interpolation=cv2.INTER_CUBIC)
 
-    def run(self):
-        print("### image_process thread run ###")
-        while True:
-            if self.frame is None:
-                continue
+    dst = cv.Canny(src, 50, 200, None, 3)
 
-            cv2.imshow("test", self.frame)
-            cv2.waitKey(100)
-            self.frame = None
+    cdst = cv.cvtColor(dst, cv.COLOR_GRAY2BGR)
+    cdstP = np.copy(cdst)
 
-    def shutdown(self):
-        pass
+    lines = cv.HoughLines(dst, 1, np.pi / 180, 150, None, 0, 0)
 
+    if lines is not None:
+        for i in range(0, len(lines)):
+            rho = lines[i][0][0]
+            theta = lines[i][0][1]
+            a = math.cos(theta)
+            b = math.sin(theta)
+            x0 = a * rho
+            y0 = b * rho
+            pt1 = (int(x0 + 1000 * (-b)), int(y0 + 1000 * (a)))
+            pt2 = (int(x0 - 1000 * (-b)), int(y0 - 1000 * (a)))
+            cv.line(cdst, pt1, pt2, (0, 0, 255), 3, cv.LINE_AA)
 
-if __name__ == '__main__':
+    linesP = cv.HoughLinesP(dst, 1, np.pi / 180, 50, None, 50, 10)
 
-    Thread_DataSend = data_send()
-    Thread_DataReceive = data_receive(Thread_DataSend)
+    if linesP is not None:
+        for i in range(0, len(linesP)):
+            l = linesP[i][0]
+            cv.line(cdstP, (l[0], l[1]), (l[2], l[3]), (0, 0, 255), 3, cv.LINE_AA)
 
-    Thread_DataSend.start()
-    Thread_DataReceive.start()
+    cv.imshow("Source", src)
+    cv.imshow("Detected Lines (in red) - Standard Hough Line Transform", cdst)
+    cv.imshow("Detected Lines (in red) - Probabilistic Line Transform", cdstP)
 
-    # 파일리스트 읽어오기
-    path_read = './test_image'
-    file_list_read = os.listdir(path_read)
-    process_time = time.time()  # 프로세스 진행시간 측정
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 
-    for i in range(len(file_list_read)):
-        image = cv2.imread("test_image/" + file_list_read[i])  # 이미지 읽기
-
-        img = display.filter_edge(image)
-        img = cv2.resize(img, (800, 480), interpolation=cv2.INTER_CUBIC)
-
-        # 이미지 좀더 선명하게 처리 #######
-        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange(img_hsv, np.array([0, 0, 100]), np.array([255, 255, 255]))
-        img_2 = cv2.bitwise_and(img, img, mask=mask)
-        ###################################
-
-        if Thread_DataSend.isData is True:
-            img_2 = display.image_object(img_2, Thread_DataReceive.location_x,
-                                         Thread_DataReceive.location_y,
-                                         Thread_DataReceive.scale_w,
-                                         Thread_DataReceive.scale_h)
-        else:
-            pass
-
-        cv2.imshow("frame", img_2)
-        cv2.waitKey(50)
+cap.release()
+cv2.destroyAllWindows()
+'''

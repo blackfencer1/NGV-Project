@@ -24,7 +24,7 @@ location_yolo = None
 def main():
     global frame
 
-    cam = cv2.VideoCapture(0)
+    cam = cv2.VideoCapture(1)
 
     # Thread start
     myDetectLine = DetectLane()
@@ -60,6 +60,7 @@ class DetectLane(threading.Thread):
             global frame
             self.frame = frame
             self.frame = ipp.filter_edge(self.frame)
+            #self.frame = ipp.detect_lane(self.frame)
             img_hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
             mask = cv2.inRange(img_hsv, np.array([0, 0, 100]), np.array([255, 255, 255]))
             frame_edge = cv2.bitwise_and(self.frame, self.frame, mask=mask)
