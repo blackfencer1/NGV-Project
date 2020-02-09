@@ -47,7 +47,7 @@ def filter_edge(img):
     height, width = img.shape[:2]  # 이미지 높이, 너비
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # 입력 받은 화면 Gray로 변환
-    height_cut = 180
+    height_cut = 10
 
     # ROI 영역
     vertices = np.array(
@@ -66,31 +66,6 @@ def filter_edge(img):
     img = cv2.cvtColor(np.copy(img), cv2.COLOR_RGB2HLS)
 
     return img
-
-# 차선검출위한 함수
-def detect_lane(img):
-    height, width = img.shape[:2]  # 이미지 높이, 너비
-
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # 입력 받은 화면 Gray로 변환
-
-    # ROI 영역
-    vertices = np.array(
-        [[(0, height),
-          (0, 45),
-          (width, 45),
-          (width, height)]],
-        dtype=np.int32)
-
-    img = region_of_interest(img, vertices)  # ROI 설정
-
-    img = cv2.GaussianBlur(img, (3, 3), 0)
-    img = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
-    img = cv2.convertScaleAbs(img)
-    img = cv2.cvtColor(np.copy(img), cv2.COLOR_GRAY2BGR)
-    #img = cv2.cvtColor(np.copy(img), cv2.COLOR_RGB2HLS)
-
-    return img
-
 
 
 # 온도센서로부터 이미지를 받아서 특정좌표에 이미지 합성
@@ -210,6 +185,19 @@ def find_line_white(img):
     img_result = cv2.bitwise_and(img, img, mask=img_mask)
 
     return img_result
+
+
+# 이미지 회전
+def rotation_image(img, degree):
+    height, width = img.shape[:2]
+
+    if degree%360 is 0:
+        return img
+    else:
+        matrix = cv2.getRotationMatrix2D((width / 2, height / 2), degree, 1)
+        img = cv2.warpAffine(img, matrix, (width, height))
+        return img
+
 
 
 

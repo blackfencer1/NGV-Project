@@ -3,6 +3,7 @@
 코드 내용 : 디스플레이 해주는 라즈베리파이를 따로
             추가하면서 이미지 처리코드를 분리
 """
+import os
 import cv2
 import numpy as np
 import threading
@@ -11,17 +12,26 @@ import ImagePreProcess as ipp
 
 
 ######## 전역변수 #########
-frame = np.zeros(shape=(480, 640, 3), dtype="uint8")
-frame_edge = np.zeros(shape=(480, 640, 3), dtype="uint8")
-frame_display = np.zeros(shape=(480, 800, 3), dtype="uint8")
-array_het = []
-frame_het = np.zeros(shape=(480, 640, 3), dtype="uint8")
-location_yolo = None
+frame           = np.zeros(shape=(480, 640, 3), dtype="uint8")
+frame_edge      = np.zeros(shape=(480, 640, 3), dtype="uint8")
+frame_display   = np.zeros(shape=(480, 800, 3), dtype="uint8")
+array_het       = []
+frame_het       = np.zeros(shape=(480, 640, 3), dtype="uint8")
+location_yolo   = None
 
+IMAGE_NO        = 0
+IMAGE           = 1
+IMAGE_DISPLAY   = 2
 
 ###########################
 
 def main():
+    """
+    BlackFencer System의 main
+    전역변수 frame을 사용하여 usb카메라의 사진을 저장하고
+    각종 스레드들을 생성, 실행한다.
+    :return: Nothing
+    """
     global frame
 
     cam = cv2.VideoCapture(1)
@@ -33,9 +43,12 @@ def main():
     #myHetImage.start()
     myDisplay = GenerateDisplayImage()
     myDisplay.start()
+    mySaveImage = SaveImage(IMAGE_NO)
+    mySaveImage.start()
 
     while True:
-        _, frame = cam.read()
+        _, _frame = cam.read()
+        frame = ipp.rotation_image(_frame, 180)
 
         cv2.imshow("frame", frame)
 
@@ -116,6 +129,39 @@ class GenerateDisplayImage(threading.Thread):
             time.sleep(0.01)
 
     def shutdonw(self):
+        pass
+
+
+class SaveImage(threading.Thread):
+    def __init__(self, option):
+        threading.Thread.__init__(self)
+        self.option = option
+        if self.option is IMAGE_NO:
+            print("[Thread] {}Save Image".format("Don't "))
+        elif self.option is IMAGE:
+            print("[Thread] Save Image{}".format(" Pure"))
+        elif self.option is IMAGE_DISPLAY:
+            print("[Thread] Save Image{}".format(" Display"))
+        else:
+            print("[Thread] Wrong option!")
+
+    def run(self):
+        global frame
+        global frame_display
+        while True:
+            if self.option is IMAGE_NO:
+                break
+            elif self.option is IMAGE:
+                pass
+                #저장
+            elif self.option is IMAGE_DISPLAY:
+                pass
+                #저장
+            else:
+                break
+            time.sleep(0.1)
+
+    def shutdown(self):
         pass
 
 if __name__ == '__main__':

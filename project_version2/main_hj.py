@@ -88,8 +88,8 @@ class SockYolo(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.frame_s = np.zeros(shape=(480, 640, 3), dtype="uint8")
-        self.data_s = np.zeros()
-        self.data_f = np.zeros()
+        self.data_s = None
+        self.data_f = None
         self.stringData = np.zeros()
         print("[Thread] Socket Communication")
 
