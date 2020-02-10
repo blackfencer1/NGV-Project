@@ -7,7 +7,9 @@ import os
 import cv2
 import numpy as np
 import threading
+import socket
 import time
+from queue import Queue
 import ImagePreProcess as ipp
 
 
@@ -23,6 +25,12 @@ IMAGE_NO        = 0
 IMAGE           = 1
 IMAGE_DISPLAY   = 2
 
+HOST = '192.168.0.107'
+PORT = 9999
+
+server_socket = None
+image_queue = Queue()
+
 ###########################
 
 def main():
@@ -33,8 +41,9 @@ def main():
     :return: Nothing
     """
     global frame
+    global image_queue
 
-    cam = cv2.VideoCapture(1)
+    cam = cv2.VideoCapture(0)
 
     # Thread start
     myDetectLine = DetectLane()
@@ -49,6 +58,14 @@ def main():
     while True:
         _, _frame = cam.read()
         frame = ipp.rotation_image(_frame, 180)
+
+        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+        result, imgencode = cv2.imencode('.jpg', frame, encode_param)
+
+        data = np.array(imgencode)
+        stringData = data.tostring()
+
+        image_queue.put(stringData)
 
         cv2.imshow("frame", frame)
 
@@ -131,6 +148,49 @@ class GenerateDisplayImage(threading.Thread):
     def shutdonw(self):
         pass
 
+
+class ServerSendImage(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        global server_socket
+        global HOST
+        global PORT
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server_socket.bind((HOST, PORT))
+        server_socket.listen()
+
+        print("[Thread] Server Start (sending image)")
+
+    def run(self):
+        global server_socket
+        global image_queue
+        while True:
+            client_socket, addr = server_socket.accept()
+
+            try:
+                data = client_socket.recv(1024)
+
+                if not data:
+                    print('Disconnected by ' + addr[0], ':', addr[1])
+                    break
+
+                stringData = queue.get()
+                client_socket.send(str(len(stringData)).ljust(16).encode())
+                client_socket.send(stringData)
+
+            except ConnectionResetError as e:
+
+                print('Disconnected by ' + addr[0], ':', addr[1])
+                break
+
+            client_socket.close()
+
+            pass
+
+
+    def shutdown(self):
+        pass
 
 class SaveImage(threading.Thread):
     def __init__(self, option):
