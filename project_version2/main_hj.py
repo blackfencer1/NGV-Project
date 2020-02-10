@@ -1,15 +1,11 @@
 """
-코드 작성일시 : 2020년 2월 8월
-코드 내용 : 디스플레이 해주는 라즈베리파이를 따로
-            추가하면서 이미지 처리코드를 분리
+Date : 2020.02.08
+Code : Rpi for display 
 """
 import cv2
 import socket
 import numpy as np
 import threading
-
-print_lock = threading.Lock()
-
 import time
 import ImagePreProcess as ipp
 
@@ -21,10 +17,11 @@ frame_edge = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_s = np.zeros(shape=(480, 640, 3), dtype="uint8")
 array_location = []
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+'''
 # Temperature
 array_het = []
 frame_het = np.zeros(shape=(480, 640,3), dtype="uint8")
-
+'''
 
 def main():
     global frame
@@ -46,14 +43,13 @@ def main():
 
     while True:
         ret, frame = cam.read()
-        frame_s.copyTo(frame)
+        np.copyTo(frame_s, frame)
         time.sleep(0.01)
 
         # frame_resize = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
         cv2.imshow("frame", frame)
         cv2.imshow("frame_line", frame_edge)
-
-        # 키누르면 main 종료
+        
         if cv2.waitKey(1) > 0:
             break
 
@@ -90,7 +86,7 @@ class SockYolo(threading.Thread):
         self.frame_s = np.zeros(shape=(480, 640, 3), dtype="uint8")
         self.data_s = None
         self.data_f = None
-        self.stringData = np.zeros()
+        self.stringData = None
         print("[Thread] Socket Communication")
 
     def run(self):
@@ -112,7 +108,7 @@ class SockYolo(threading.Thread):
     def shutdown(self):
         pass
 
-
+'''
 # HetImage Generation Thread
 class GenerateHetImage(threading.Thread):
     def __init__(self):
@@ -129,7 +125,7 @@ class GenerateHetImage(threading.Thread):
 
     def shutdown(self):
         pass
-
+'''
 if __name__ == '__main__':
     print("### main start ###")
     main()
