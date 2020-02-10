@@ -43,7 +43,8 @@ def main():
 
     while True:
         ret, frame = cam.read()
-        np.copyTo(frame_s, frame)
+        np.copyto(frame_s, frame)
+        print("copy successfully")
         time.sleep(0.01)
 
         # frame_resize = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
@@ -102,7 +103,8 @@ class SockYolo(threading.Thread):
             sock.sendall((str(len(self.stringData))).encode().ljust(16) + self.stringData)
             time.sleep(0.1)
             # Socket with html
-            self.data_f = sock.recv(str(self.data_f))
+            self.data_f = conn.recv(64)
+            print(self.data_f)
             time.sleep(0.1)
 
     def shutdown(self):
