@@ -25,7 +25,7 @@ IMAGE_NO        = 0
 IMAGE           = 1
 IMAGE_DISPLAY   = 2
 
-HOST = '192.168.0.107'
+HOST = '192.168.255.25'
 PORT = 9999
 
 server_socket = None
@@ -54,6 +54,8 @@ def main():
     myDisplay.start()
     mySaveImage = SaveImage(IMAGE_NO)
     mySaveImage.start()
+    myServerSendImage = ServerSendImage()
+    myServerSendImage.start()
 
     while True:
         _, _frame = cam.read()
@@ -61,16 +63,14 @@ def main():
 
         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
         result, imgencode = cv2.imencode('.jpg', frame, encode_param)
-
         data = np.array(imgencode)
         stringData = data.tostring()
 
         image_queue.put(stringData)
 
-        cv2.imshow("frame", frame)
-
-        # 키누르면 main 종료
-        if cv2.waitKey(1) > 0:
+        #cv2.imshow("framegfg", frame)
+        key = cv2.waitKey(1)
+        if key == 27:
             break
 
     cam.release()
@@ -125,25 +125,27 @@ class GenerateDisplayImage(threading.Thread):
         print("[Thread] Generate Image(display)")
 
     def run(self):
+        global frame
         global frame_edge
         global frame_display
         global frame_het
         global location_yolo
         while True:
             #frame = ipp.merge_image_het(frame_edge, frame_het)
-            frame = frame_edge #임시방편
+            _frame = frame_edge #임시방편
 
             if location_yolo is None:
                 pass
             else:
-                frame = ipp.image_object(frame, location_yolo[0], location_yolo[1],
+                _frame = ipp.image_object(_frame, location_yolo[0], location_yolo[1],
                                          location_yolo[2], location_yolo[3])
 
-            self.frame_display = cv2.resize(frame, (800, 480), interpolation=cv2.INTER_CUBIC)
+            self.frame_display = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
 
             cv2.imshow("Display", self.frame_display)
+            cv2.imshow("framegfg", frame)
+
             cv2.waitKey(1)
-            time.sleep(0.01)
 
     def shutdonw(self):
         pass
