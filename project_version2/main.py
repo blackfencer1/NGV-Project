@@ -17,13 +17,17 @@ import ImagePreProcess as ipp
 frame           = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_edge      = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_display   = np.zeros(shape=(480, 800, 3), dtype="uint8")
-array_het       = []
+array_het       = [1, 2, 3, 4, 5]
 frame_het       = np.zeros(shape=(480, 640, 3), dtype="uint8")
 location_yolo   = None
 
 IMAGE_NO        = 0
 IMAGE           = 1
 IMAGE_DISPLAY   = 2
+IMAGE_HET       = 3
+
+HET_NO          = 0
+HET             = 1
 
 HOST = '192.168.255.25'
 PORT = 9999
@@ -52,13 +56,15 @@ def main():
     #myHetImage.start()
     myDisplay = GenerateDisplayImage()
     myDisplay.start()
-    mySaveImage = SaveImage(IMAGE_NO)
-    mySaveImage.start()
-    myServerSendImage = ServerSendImage()
-    myServerSendImage.start()
+    mySaveImage = SaveImage(IMAGE, HET)
+    #myServerSendImage = ServerSendImage()
+    #myServerSendImage.start()
 
+    _, _frame = cam.read()
+    mySaveImage.start()
     while True:
         _, _frame = cam.read()
+
         frame = ipp.rotation_image(_frame, 180)
 
         encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
@@ -195,32 +201,66 @@ class ServerSendImage(threading.Thread):
         pass
 
 class SaveImage(threading.Thread):
-    def __init__(self, option):
+    def __init__(self, option_image, option_het):
         threading.Thread.__init__(self)
-        self.option = option
-        if self.option is IMAGE_NO:
+        self.option_image = option_image
+        self.option_het = option_het
+        self.count = 0
+
+        # Directory Create
+        if not (os.path.isdir("./data")):
+            os.makedirs(os.path.join("data"))
+
+        time.sleep(2)
+
+        if self.option_image is IMAGE_NO:
             print("[Thread] {}Save Image".format("Don't "))
-        elif self.option is IMAGE:
+        elif self.option_image is IMAGE:
             print("[Thread] Save Image{}".format(" Pure"))
-        elif self.option is IMAGE_DISPLAY:
+        elif self.option_image is IMAGE_DISPLAY:
             print("[Thread] Save Image{}".format(" Display"))
         else:
-            print("[Thread] Wrong option!")
+            print("[Thread] Wrong image option!")
+
+        if self.option_het is HET_NO:
+            print("[Thread] {}Save HET".format("Don't "))
+        elif self.option_het is HET:
+            print("[Thread] Save HET")
+        else:
+            print("[Thread] Wrong het option!")
 
     def run(self):
         global frame
         global frame_display
+        global frame_het
+        global array_het
+
         while True:
-            if self.option is IMAGE_NO:
-                break
-            elif self.option is IMAGE:
+            self.count += 1
+            if self.option_image is IMAGE_NO:
+                pass
+            elif self.option_image is IMAGE:
+                cv2.imwrite("./data/image{0:0>5}.jpg".format(self.count), frame)
                 pass
                 #저장
-            elif self.option is IMAGE_DISPLAY:
+            elif self.option_image is IMAGE_DISPLAY:
+                cv2.imwrite("./data/image{0:0>5}.jpg".format(self.count), frame_display)
+                pass
+                #저장
+            elif self.option_image is IMAGE_HET:
+                cv2.imwrite("./data/image{0:0>5}.jpg".format(self.count), frame_het)
                 pass
                 #저장
             else:
-                break
+                pass
+
+            if self.option_het is HET_NO:
+                pass
+            elif self.option_het is HET:
+                file = open("./data/het{0:0>5}.txt".format(self.count), 'w')
+                file.write(str(array_het))
+                file.close()
+
             time.sleep(0.1)
 
     def shutdown(self):
