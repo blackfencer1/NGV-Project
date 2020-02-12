@@ -127,7 +127,12 @@ class GenerateHetImage(threading.Thread):
 
     def shutdown(self):
         pass
+<<<<<<< HEAD
+
+
+=======
 '''
+>>>>>>> a034eb7897574bb40218634db3d1f972dbc0a3bd
 if __name__ == '__main__':
     print("### main start ###")
     main()
