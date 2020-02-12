@@ -7,7 +7,7 @@ import sys
 import os
 
 
-class Telecommunication(self):
+class Telecommunication:
     def __init__(self):
         # Input server IP
         self.host = "192.168.255.21"
