@@ -1,3 +1,4 @@
+#-*-coding: utf-8 -*-
 """
 Date : 2020.02.08
 Code : Rpi for display 
@@ -29,18 +30,22 @@ def main():
     global frame_s
     global sock
 
-    cam = cv2.VideoCapture(1)
-    sock.connect(('192.168.0.116', 8888))
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(('172.20.10.11', 1234))
     print('connected')
+    
+    cam = cv2.VideoCapture(0)
+    # sock.connect(('172.20.10.11', 1234))
 
     # Start threads
     myDetectLane = DetectLane()
     myDetectLane.start()
     mySockYolo = SockYolo()
     mySockYolo.start()
+    '''
     myHetImage = GenerateHetImage()
     myHetImage.start()
-
+    '''
     while True:
         ret, frame = cam.read()
         np.copyto(frame_s, frame)
@@ -103,7 +108,7 @@ class SockYolo(threading.Thread):
             sock.sendall((str(len(self.stringData))).encode().ljust(16) + self.stringData)
             time.sleep(0.1)
             # Socket with html
-            self.data_f = conn.recv(64)
+            self.data_f = sock.recv(64)
             print(self.data_f)
             time.sleep(0.1)
 
@@ -127,13 +132,9 @@ class GenerateHetImage(threading.Thread):
 
     def shutdown(self):
         pass
-<<<<<<< HEAD
-
-
-=======
 '''
->>>>>>> a034eb7897574bb40218634db3d1f972dbc0a3bd
 if __name__ == '__main__':
     print("### main start ###")
     main()
+
 

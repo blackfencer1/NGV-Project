@@ -1,3 +1,4 @@
+#-*-coding: utf-8 -*-
 import cv2
 import numpy as np
 import os
@@ -10,7 +11,7 @@ color_black = (0, 0, 0)
 color_red = (0, 0, 255)
 color_white = (255, 255, 255)
 
-# 색상 범위 - HSV - 색상(Hue), 채도(Saturation), 명도(Value)
+#색상 범위 - HSV - 색상(Hue), 채도(Saturation), 명도(Value)
 lower_orange = (8, 50, 50)
 upper_orange = (20, 255, 255)
 
