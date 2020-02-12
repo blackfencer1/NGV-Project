@@ -11,6 +11,8 @@ import socket
 import time
 from queue import Queue
 import ImagePreProcess as ipp
+from serial import Serial
+import seeed_python_ircamera
 
 
 ######## 전역변수 #########
@@ -35,6 +37,14 @@ PORT = 9999
 server_socket = None
 image_queue = Queue()
 
+# 온도센서
+hetaData = []
+lock = threading.Lock()
+minHue = 180
+maxHue = 360
+
+
+
 ###########################
 
 def main():
@@ -46,7 +56,7 @@ def main():
     """
     global frame
     global image_queue
-
+    global hetaData
     cam = cv2.VideoCapture(0)
 
     # Thread start
@@ -60,9 +70,15 @@ def main():
     #myServerSendImage = ServerSendImage()
     #myServerSendImage.start()
 
+    # 온도센서
+    dataThread = DataReader(None)
+    dataThread.start()
+
     _, _frame = cam.read()
     mySaveImage.start()
     while True:
+        print("het data [] :", hetaData)
+
         _, _frame = cam.read()
 
         frame = ipp.rotation_image(_frame, 180)
@@ -148,8 +164,8 @@ class GenerateDisplayImage(threading.Thread):
 
             self.frame_display = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
 
-            cv2.imshow("Display", self.frame_display)
-            cv2.imshow("framegfg", frame)
+            #cv2.imshow("Display", self.frame_display)
+            #cv2.imshow("framegfg", frame)
 
             cv2.waitKey(1)
 
