@@ -71,7 +71,7 @@ def main():
     #myServerSendImage.start()
 
     # 온도센서
-    dataThread = DataReader(None)
+    dataThread = seeed_python_ircamera.DataReader(None)
     dataThread.start()
 
     _, _frame = cam.read()
