@@ -130,6 +130,7 @@ class GenerateHetImage(threading.Thread):
     def shutdown(self):
         pass
 
+
 if __name__ == '__main__':
     print("### main start ###")
     main()
