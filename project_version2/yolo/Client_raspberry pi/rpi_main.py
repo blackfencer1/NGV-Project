@@ -7,9 +7,7 @@ import numpy as np
 import threading
 import socket
 import time
-from queue import Queue
 import ImagePreProcess as ipp
-import client
 
 ######## 전역변수 #########
 frame = np.zeros(shape=(480, 640, 3), dtype="uint8")
@@ -27,8 +25,6 @@ IMAGE_HET = 3
 HET_NO = 0
 HET = 1
 
-image_queue = Queue()
-
 
 ###########################
 
@@ -40,7 +36,6 @@ def main():
     :return: Nothing
     """
     global frame
-    global image_queue
 
     cam = cv2.VideoCapture(0)
 
@@ -48,33 +43,22 @@ def main():
     myDetectLine = DetectLane()
     myDetectLine.start()
     myHetImage = GenerateHetImage()
-    # myHetImage.start()
+    myHetImage.start()
     myDisplay = GenerateDisplayImage()
     myDisplay.start()
 
     mySaveImage = SaveImage(IMAGE, HET_NO)
 
-    myDetectFrame = DetectFrame()
-    myDetectFrame.start()
+    #myDetectFrame = DetectFrame()
+    #myDetectFrame.start()
 
-    _, _frame = cam.read()
+    _, frame = cam.read()
     mySaveImage.start()
     while True:
-        _, _frame = cam.read()
+        _, frame = cam.read()
 
-        frame = ipp.rotation_image(_frame, 180)
-
-        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
-        result, imgencode = cv2.imencode('.jpg', frame, encode_param)
-        data = np.array(imgencode)
-        stringData = data.tostring()
-
-        image_queue.put(stringData)
-
-        # cv2.imshow("framegfg", frame)
-        key = cv2.waitKey(1)
-        if key == 27:
-            break
+        #frame = ipp.rotation_image(_frame, 180)
+        key = cv2.waitKey(5)
 
     cam.release()
     cv2.destroyAllWindows()
@@ -114,7 +98,8 @@ class GenerateHetImage(threading.Thread):
         while True:
             global array_het
             global frame_het
-            frame_het = ipp.het_arr2img(array_het)
+            _frame_het = ipp.het_arr2img(array_het)
+            frame_het = ipp.image_het_mapping(_frame_het, ipp.corner)
             time.sleep(0.01)
 
     def shutdown(self):
@@ -150,7 +135,7 @@ class GenerateDisplayImage(threading.Thread):
 
             cv2.waitKey(1)
 
-    def shutdonw(self):
+    def shutdown(self):
         pass
 
 

@@ -19,11 +19,11 @@ lower_white = (0, 0, 150)
 upper_white = (255, 120, 255)
 ###
 
-# 20년02월04일 측정한 온도매핑 좌표 #
-corner = [[53, 59],
-          [30, 94],
-          [128, 94],
-          [110, 59]]    # 160X120 기준
+# 20년02월14일 측정한 온도매핑 좌표 #
+corner = [[255, 265],
+          [210, 466],
+          [530, 444],
+          [436, 270]]    # 640X480 기준
 ####
 
 
@@ -68,6 +68,25 @@ def filter_edge(img):
 
     return img
 
+# 온도이미지를 도로상 좌표로 매핑시킨 이미지
+def image_het_mapping(img_het, corner=[[255, 265],
+          [210, 466],
+          [530, 444],
+          [436, 270]]):
+
+    # 온도이미지 mask 생성
+    h, w = img_het.shape[:2]
+    rows, cols, ch = img.shape
+
+    pts1 = np.float32([[w, 0], [0, 0], [w, h], [0, h]]) # 좌우반전 추가
+    pts2 = np.float32([_corner[0], _corner[3], _corner[1], _corner[2]])
+
+    M = cv2.getPerspectiveTransform(pts1, pts2)
+    img_mask = cv2.warpPerspective(img_het, M, (cols, rows))
+
+    return img_mask
+
+
 
 # 온도센서로부터 이미지를 받아서 특정좌표에 이미지 합성
 def merge_image_het(img, img_het, _corner=[[53, 59],
@@ -99,7 +118,6 @@ def het_arr2img(num_array):
     img = np.zeros((h, w, 3), dtype=np.uint8)
     for i in range(h):
         for j in range(w):
-            print('num_array[', i, j, '] :', num_array[i, j])
             if num_array[i, j] > 10:
                 img[i, j] = color_black
             elif num_array[i, j] > 5:
@@ -112,7 +130,6 @@ def het_arr2img(num_array):
                 img[i, j] = (255, 200, 200)
             else:
                 img[i, j] = color_white
-            print('num_array[', i, j, '] :', num_array[i, j])
 
     return img
 
@@ -215,51 +232,13 @@ def display():
     file_list_read = os.listdir(path_read)
     process_time = time.time()  # 프로세스 진행시간 측정
 
-    ## 임시방편 임의의 온도배열 생성 12x6 ###
-    ## 온도 데이터배열에서 이미지 전환 테스트 코드
-    # hetadata = np.zeros((80, 15), dtype=np.int8)
-    # for i in range(80):
-    #     for j in range(15):
-    #         if i < 40:
-    #             hetadata[i, j] = (20 - i)
-    #         else:
-    #             hetadata[i, j] = (i - 60)
-
-    # hetadata = np.array([[-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10],
-    #                      [-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10],
-    #                      [-10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10, -10],
-    #                      [-5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5],
-    #                      [-5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5],
-    #                      [-5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5],
-    #                      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #                      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #                      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #                      [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-    #                      [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-    #                      [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-    #                      [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
-    #                      [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
-    #                      [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
-    #                      [20, 20, 20, 20, 20, 16, 17, 18, 19, 20, 21, 0]])
-
-    #het_data = np.genfromtxt('test_hetadata/result1.csv', delimiter=',')
-    #het_image = csv2img(het_csv[0, :])
-    #het_arr = flat2arr(het_data[0, :])
-    #het_image = het_arr2img(het_arr)
-
-    ### 온도매핑 모서리 160x120사이즈를 800x480사이즈로 바꿈
     for i in range(4):
         for j in range(2):
             if j is 0:
                 corner[i][j] = corner[i][j] * 5
             else:
                 corner[i][j] = corner[i][j] * 4
-    ####
 
-    #het_image = cv2.resize(het_image, (300, 300), interpolation=cv2.INTER_CUBIC)
-    #cv2.imshow('het data image', het_image)
-    #cv2.waitKey(10)
-    ############################################
     het_image = cv2.imread("het_image.JPG")
 
     for i in range(len(file_list_read)):

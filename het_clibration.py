@@ -9,12 +9,14 @@ upper_orange = (20, 255, 255)
 color_white = (255, 255, 255)
 ####
 
-# 20년02월04일 측정한 온도매핑 좌표 #
-corner = [[53, 59],
-          [30, 94],
-          [128, 94],
-          [110, 59]]    # 160X120 기준
+# 20년02월14일 측정한 온도매핑 좌표 #
+corner = [[255, 265],
+          [210, 466],
+          [530, 444],
+          [436, 270]]    # 640X480 기준
 ####
+
+
 
 # 주황색을 검출하기 위한 함수 #
 def find_orange(img):
@@ -24,6 +26,20 @@ def find_orange(img):
 
     # 색상 범위를 제한하여 mask 생성
     img_mask = cv2.inRange(img_hsv, lower_orange, upper_orange)
+
+    # 원본 이미지를 가지고 Object 추출 이미지로 생성
+    img_result = cv2.bitwise_and(img, img, mask=img_mask)
+
+    return img_result
+
+# 주황색을 검출하기 위한 함수 #
+def find_white(img):
+    # 가우시안55 필터 적용
+    img = cv2.GaussianBlur(img, (5, 5), 0)
+    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    # 색상 범위를 제한하여 mask 생성
+    img_mask = cv2.inRange(img_hsv, (0, 0, 100), (255, 250, 255))
 
     # 원본 이미지를 가지고 Object 추출 이미지로 생성
     img_result = cv2.bitwise_and(img, img, mask=img_mask)
@@ -47,9 +63,16 @@ def make_box(img, center_x, center_y, width, height):
           (center_x + width / 2, center_y + height / 2),
           (center_x + width / 2, center_y - height / 2)]],
         dtype=np.int32)
-    cv2.fillPoly(img, vertices, color_white)
+    cv2.fillPoly(img, vertices, (0, 0, 255))
 
     return img
+
+
+def on_mouse(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        global points
+        points.append([x, y])
+        print(points)
 
 def image_het(image, corner):
     '''
@@ -59,6 +82,9 @@ def image_het(image, corner):
     :param corner: 형태를 변환할 네개의 모서리
     :return: 변환된 이미지
     '''
+
+    points = list()
+    cv2.setMouseCallback('box', on_mouse)
 
     h, w = image.shape[:2]
     print(w)
@@ -82,20 +108,20 @@ if __name__ == '__main__':
     path_read = './het_calibration_image'
     file_list_read = os.listdir(path_read)
 
-    img = cv2.imread("het_calibration_image/" + file_list_read[0])  # 이미지 읽기
+    img = cv2.imread("het_calibration_image/" + file_list_read[10])  # 이미지 읽기
 
     # img = cv2.resize(img, (800, 480), interpolation=cv2.INTER_CUBIC)
-    img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    img_orange = find_orange(img)
+    #img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    #img_orange = find_white(img)
 
     # 온도센서 모서리 좌표
-    corner_1 = [53, 59]
-    corner_2 = [30, 94]
-    corner_3 = [128, 94]
-    corner_4 = [110, 59]
+    corner_1 = [255, 265]
+    corner_2 = [210, 466]
+    corner_3 = [530, 444]
+    corner_4 = [436, 270]
 
     ### box 생성 ###
-    img_box = make_box(img_orange, corner_1[0], corner_1[1], 4, 4)
+    img_box = make_box(img, corner_1[0], corner_1[1], 4, 4)
     img_box = make_box(img_box, corner_2[0], corner_2[1], 4, 4)
     img_box = make_box(img_box, corner_3[0], corner_3[1], 4, 4)
     img_box = make_box(img_box, corner_4[0], corner_4[1], 4, 4)
@@ -103,7 +129,7 @@ if __name__ == '__main__':
 
     img_het = image_het(img, corner)
 
-    cv2.imshow('image', img)
+    #cv2.imshow('image', img)
     cv2.imshow('fsdfsdf', img_het)
     cv2.imshow('box', img_box)
     cv2.waitKey(0)
