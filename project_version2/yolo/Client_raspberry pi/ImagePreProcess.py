@@ -76,10 +76,11 @@ def image_het_mapping(img_het, corner=[[255, 265],
 
     # 온도이미지 mask 생성
     h, w = img_het.shape[:2]
-    rows, cols, ch = img.shape
+    rows = 640
+    cols = 480
 
     pts1 = np.float32([[w, 0], [0, 0], [w, h], [0, h]]) # 좌우반전 추가
-    pts2 = np.float32([_corner[0], _corner[3], _corner[1], _corner[2]])
+    pts2 = np.float32([corner[0], corner[3], corner[1], corner[2]])
 
     M = cv2.getPerspectiveTransform(pts1, pts2)
     img_mask = cv2.warpPerspective(img_het, M, (cols, rows))
