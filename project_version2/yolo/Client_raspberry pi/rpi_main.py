@@ -108,6 +108,7 @@ class GenerateHetImage(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.frame_het = np.zeros(shape=(480, 640, 3), dtype="uint8")
+        time.sleep(5)
         print("[Thread] Generate Image(Het)")
 
     def run(self):
