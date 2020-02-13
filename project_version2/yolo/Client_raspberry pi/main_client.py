@@ -55,7 +55,7 @@ def main():
     
     mySaveImage = SaveImage(IMAGE, HET)
     
-    tel = server.Telecommunication()
+    tel = client.Telecommunication()
     
     #myServerSendImage = ServerSendImage()
     #myServerSendImage.start()
