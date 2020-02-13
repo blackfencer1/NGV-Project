@@ -64,7 +64,7 @@ def main():
     #myDetectFrame.start()
 
     # 온도센서
-    app = ir.QApplication()
+    #app = ir.QApplication()
     dataThread = ir.DataReader(None)
     dataThread.start()
 
