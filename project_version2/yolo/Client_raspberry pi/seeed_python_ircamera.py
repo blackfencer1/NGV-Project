@@ -86,6 +86,7 @@ class DataReader(QThread):
         return hetData
 
     def run(self):
+        global hetaData
         # throw first frame
         self.readData()
         while True:
@@ -96,8 +97,8 @@ class DataReader(QThread):
             tempData = []
             nanCount = 0
             
-            hetData = self.readData()
-            print("data")            
+            hetaData = self.readData()
+            #print("data")
             #print(*hetData)
             #saving data when object gets under 5 degree
             '''
