@@ -64,7 +64,7 @@ def main():
     #myDetectFrame.start()
 
     # 온도센서
-    #app = seeed_python_ircamera.QApplication()
+    app = ir.QApplication()
     dataThread = ir.DataReader(None)
     dataThread.start()
 
@@ -72,6 +72,7 @@ def main():
     mySaveImage.start()
     while True:
         _, frame = cam.read()
+        hetaData = ir.hetaData
 
         #frame = ipp.rotation_image(_frame, 180)
         key = cv2.waitKey(5)
