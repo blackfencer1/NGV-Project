@@ -101,87 +101,13 @@ class DataReader(QThread):
             #print("data")
             #print(*hetData)
             #saving data when object gets under 5 degree
-            '''
-            for item in hetData:
-                if item <= 5:
-                   #saving data with file name number of frame(still working..)
-                   csvresult = open("/home/pi/results/result_%s.csv" %self.frameCount, "a")           
-                   csvresult.write(str(hetData) + "\n")
-                   csvresult.close
-
-            if  len(hetData) < 768 :
-                continue
-
-            for i in range(0, 768):
-                curCol = i % 32
-                newValueForNanPoint = 0
-                curData = None
-
-                if i < len(hetData) and isDigital(hetData[i]):
-                    curData = float(hetData[i])
-                else:
-                    interpolationPointCount = 0
-                    sumValue = 0
-                    # print("curCol",curCol,"i",i)
-
-                    abovePointIndex = i-32
-                    if (abovePointIndex>0):
-                        if hetData[abovePointIndex] is not "nan" :
-                            interpolationPointCount += 1
-                            sumValue += float(hetData[abovePointIndex])
-
-                    belowPointIndex = i+32
-                    if (belowPointIndex<768):
-                        print(" ")
-                        if hetData[belowPointIndex] is not "nan" :
-                            interpolationPointCount += 1
-                            sumValue += float(hetData[belowPointIndex])
-                            
-                    leftPointIndex = i -1
-                    if (curCol != 31):
-                        if hetData[leftPointIndex]  is not "nan" :
-                            interpolationPointCount += 1
-                            sumValue += float(hetData[leftPointIndex])
-
-                    rightPointIndex = i + 1
-                    if (belowPointIndex<768):
-                        if (curCol != 0):
-                            if hetData[rightPointIndex] is not "nan" :
-                                interpolationPointCount += 1
-                                sumValue += float(hetData[rightPointIndex])
-
-                    curData =  sumValue /interpolationPointCount
-                     #For debug :
-                    #print(abovePointIndex,belowPointIndex,leftPointIndex,rightPointIndex)
-                    #print("newValueForNanPoint",newValueForNanPoint," interpolationPointCount" , interpolationPointCount ,"sumValue",sumValue)
-                    nanCount +=1
-
-                tempData.append(curData)
-                maxHet = tempData[i] if tempData[i] > maxHet else maxHet
-                minHet = tempData[i] if tempData[i] < minHet else minHet
-
-            if maxHet == 0 or minHet == 500:
-                continue
-            # For debug :
-            # if nanCount > 0 :
-            #     print("____@@@@@@@ nanCount " ,nanCount , " @@@@@@@____")
-           
-            lock.acquire()
-            hetaData.append(
-                {
-                    "frame": tempData,
-                    "maxHet": maxHet,
-                    "minHet": minHet
-                }
-            )
-            lock.release()
-            '''
+            
             self.drawRequire.emit()
             self.frameCount = self.frameCount + 1
             
-            print("data->" + str(self.frameCount))
+            #print("data->" + str(self.frameCount))
             
-            print("time : {}".format(time.time()-process_time))
+            #print("time : {}".format(time.time()-process_time))
         self.com.close()
         
 def run():
