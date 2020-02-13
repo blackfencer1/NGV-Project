@@ -39,23 +39,14 @@ def yolo_arr2flat(yolo_location):
     w = yolo_location[2]
     h = yolo_location[3]
 
-    flat_yolo = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    flat_yolo = np.zeros((width*height), dtype=np.int8)
+
     for i in range(10):
         for j in range(10):
             if (i+1 >= x-h/2) and (i+1 <= x+h/2):
                 if (j+1 >= y-w/2) and (j+1 <= y+w/2):
                     flat_yolo[i*width + j] = 1
 
-    print("flat yolo : ", flat_yolo)
     return flat_yolo
 
 def image_het2flat(image_het):
@@ -66,7 +57,7 @@ def image_het2flat(image_het):
     :return: flat 온도데이터
     '''
     img_het = cv2.resize(image_het, (width, height), interpolation=cv2.INTER_CUBIC)
-    result = np.zeros((width * height))
+    result = np.zeros((width * height), dtype=np.int8)
 
     for i in range(height):
         for j in range(width):
@@ -91,21 +82,14 @@ def Find_BlackIce(het, yolo):
     :param yolo: flat yolo데이터
     :return: flat 블랙아이스
     '''
-    blackice = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-    for i in range(len(het)):
-        if (het[i] is 1) and (yolo[i] is 1):
-            blackice[i] = 1
-
+    blackice = np.zeros((width*height), dtype=np.int8)
+    print(het[4], yolo[4])
+    print(het[4].dtype, yolo[4].dtype)
+    for index in range(len(het)):
+        if (het[index] is 1) and (yolo[index] is 1):
+            blackice[index] = 1
+            print(blackice[index])
+    print(blackice)
     return blackice
 
 print("start")
@@ -113,10 +97,12 @@ flat_yolo = yolo_arr2flat(yolo_location)
 het_image = cv2.imread("het_image.JPG", cv2.IMREAD_COLOR)
 flat_het = image_het2flat(het_image)
 flat_het = np.array(flat_het)
-print("flat het shaep : ", flat_het.shape)
+# print("flat het shaep : ", flat_het.shape)
 print("start find black ice")
 blackice = Find_BlackIce(flat_het, flat_yolo)
-
+print("flat_het :", flat_het)
+print("flat_yolo : ", flat_yolo)
 for i in range(10):
     print(blackice[10*i], blackice[10*i+1], blackice[10*i+2], blackice[10*i+3], blackice[10*i+4],
           blackice[10*i+5], blackice[10*i+6], blackice[10*i+7], blackice[10*i+8], blackice[10*i+9])
+

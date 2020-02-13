@@ -221,27 +221,18 @@ class SaveImage(threading.Thread):
         pass
 
 
-def recvall(sock, count):
-    buf = b''
-    while count:
-        newbuf = sock.recv(count)
-        if not newbuf: return None
-        buf += newbuf
-        count -= len(newbuf)
-    return buf
-
-
 class DetectFrame(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         # Input server IP
-        self.host = "192.168.0.6"
+        self.host = "192.168.0.122"
         self.port = 4000
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.connect((self.host, self.port))
         print("connected")
 
     def run(self):
+        global location_yolo
         while True:
             # SEND FRAME TO YOLO
             f = open("./CAM_data/image/image.jpg", 'rb')
@@ -257,11 +248,12 @@ class DetectFrame(threading.Thread):
 
             # RECEIVE COORDINATES FROM YOLO
             with open("./COORD_data/coordinates.txt", 'w') as my_file:
-                length = recvall(conn, 16)
-                coord_data = recvall(conn, int(length))
+                coord_data = self.server_socket.recv(1024)
                 print("receiving coordinates...")
-                my_file.write(coord_data)
+                my_file.write(str(coord_data))
+                print("coord : ", str(coord_data))
                 print("coordinates Update!")
+                location_yolo = coord_data
                 my_file.close()
 
 
