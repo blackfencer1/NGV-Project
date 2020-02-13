@@ -32,7 +32,7 @@ HET = 1
 ###########################
 
 # 온도센서
-hetaData = []
+hetaData = np.zeros((768,), dtype="int8")
 lock = threading.Lock()
 minHue = 180
 maxHue = 360
