@@ -112,8 +112,6 @@ def merge_image_het(img, img_het, _corner=[[53, 59],
 
 # 온도데이터 배열을 이미지로 바꿔주는 함수
 def het_arr2img(num_array):
-    print(num_array[0, 0])
-    print(num_array[0, 11])
     h, w = num_array.shape[:2]  # 배열의 너비, 높이
     img = np.zeros((h, w, 3), dtype=np.uint8)
     for i in range(h):

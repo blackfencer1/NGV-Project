@@ -8,6 +8,9 @@ import threading
 import socket
 import time
 import ImagePreProcess as ipp
+from serial import Serial
+import seeed_python_ircamera as ir
+
 
 ######## 전역변수 #########
 frame = np.zeros(shape=(480, 640, 3), dtype="uint8")
@@ -28,6 +31,13 @@ HET = 1
 
 ###########################
 
+# 온도센서
+hetaData = []
+lock = threading.Lock()
+minHue = 180
+maxHue = 360
+
+
 def main():
     """
     BlackFencer System의 main
@@ -36,6 +46,7 @@ def main():
     :return: Nothing
     """
     global frame
+    global hetaData
 
     cam = cv2.VideoCapture(0)
 
@@ -51,6 +62,11 @@ def main():
 
     #myDetectFrame = DetectFrame()
     #myDetectFrame.start()
+
+    # 온도센서
+    #app = seeed_python_ircamera.QApplication()
+    dataThread = ir.DataReader(None)
+    dataThread.start()
 
     _, frame = cam.read()
     mySaveImage.start()
@@ -96,8 +112,10 @@ class GenerateHetImage(threading.Thread):
 
     def run(self):
         while True:
+            global hetaData
             global array_het
             global frame_het
+
             _frame_het = ipp.het_arr2img(array_het)
             frame_het = ipp.image_het_mapping(_frame_het, ipp.corner)
             time.sleep(0.01)
