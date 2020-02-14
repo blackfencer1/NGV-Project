@@ -16,7 +16,7 @@ import seeed_python_ircamera as ir
 frame = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_edge = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_display = np.zeros(shape=(480, 800, 3), dtype="uint8")
-array_het = [1, 2, 3, 4, 5]
+array_het = np.ones(shape=(32, 24, 1), dtype="int8")
 frame_het = np.zeros(shape=(480, 640, 3), dtype="uint8")
 location_yolo = None
 
@@ -58,7 +58,7 @@ def main():
     myDisplay = GenerateDisplayImage()
     myDisplay.start()
 
-    mySaveImage = SaveImage(IMAGE, HET_NO)
+    mySaveImage = SaveImage(IMAGE_NO, HET_NO)
 
     #myDetectFrame = DetectFrame()
     #myDetectFrame.start()
@@ -72,10 +72,9 @@ def main():
     mySaveImage.start()
     while True:
         _, frame = cam.read()
-        hetaData = ir.hetaData
 
         #frame = ipp.rotation_image(_frame, 180)
-        key = cv2.waitKey(5)
+        time.sleep(0.05)
 
     cam.release()
     cv2.destroyAllWindows()
@@ -152,10 +151,10 @@ class GenerateDisplayImage(threading.Thread):
 
             self.frame_display = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
 
-            cv2.imshow("Display", self.frame_display)
-            cv2.imshow("framegfg", frame)
+            #cv2.imshow("Display", self.frame_display)
+            #cv2.imshow("framegfg", frame)
 
-            cv2.waitKey(1)
+            cv2.waitKey(5)
 
     def shutdown(self):
         pass
