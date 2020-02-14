@@ -18,7 +18,7 @@ frame_edge = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_display = np.zeros(shape=(480, 800, 3), dtype="uint8")
 array_het = np.ones(shape=(32, 24, 1), dtype="int8")
 frame_het = np.zeros(shape=(480, 640, 3), dtype="uint8")
-location_yolo = None
+location_yolo = [0]
 
 IMAGE_NO = 0
 IMAGE = 1
@@ -142,14 +142,13 @@ class GenerateDisplayImage(threading.Thread):
             # frame = ipp.merge_image_het(frame_edge, frame_het)
             _frame = frame_edge  # 임시방편
 
-            if location_yolo is None:
+            if location_yolo[0] is 0:
+                print("### object is not deteced ####")
                 pass
             else:
+                print("### detect object successfully!")
                 _frame = ipp.image_object(_frame, location_yolo[0], location_yolo[1],
                                           location_yolo[2], location_yolo[3])
-
-            print("dege : ", frame_edge.shape)
-            print("het : ", frame_het.shape)
 
             _frame = cv2.add(frame_edge, frame_het)
             self.frame_display = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
