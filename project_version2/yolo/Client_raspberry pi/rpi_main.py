@@ -116,7 +116,7 @@ class GenerateHetImage(threading.Thread):
             global hetaData
             global array_het
             global frame_het
-
+            hetaData = ir.hetaData
             array_het = ipp.flat2arr(hetaData)
             _frame_het = ipp.het_arr2img(array_het)
             frame_het = ipp.image_het_mapping(_frame_het, ipp.corner)
