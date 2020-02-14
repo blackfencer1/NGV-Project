@@ -32,7 +32,7 @@ HET = 1
 ###########################
 
 # 온도센서
-hetaData = np.zeros((768,), dtype="int8")
+hetaData = np.ones((768,), dtype="int8")
 lock = threading.Lock()
 minHue = 180
 maxHue = 360
@@ -147,11 +147,11 @@ class GenerateDisplayImage(threading.Thread):
             else:
                 _frame = ipp.image_object(_frame, location_yolo[0], location_yolo[1],
                                           location_yolo[2], location_yolo[3])
-
+            _frame = cv2.add(frame, frame_het)
             self.frame_display = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
 
-            cv2.imshow("het", frame_het)
-            #cv2.imshow("Display", self.frame_display)
+            #cv2.imshow("het", frame_het)
+            cv2.imshow("Display", self.frame_display)
             #cv2.imshow("framegfg", frame)
 
             cv2.waitKey(5)
