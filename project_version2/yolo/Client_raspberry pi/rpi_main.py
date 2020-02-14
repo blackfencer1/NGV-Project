@@ -151,7 +151,8 @@ class GenerateDisplayImage(threading.Thread):
 
             self.frame_display = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
 
-            #cv2.imshow("Display", self.frame_display)
+            cv2.imshow("het", frame_het)
+            cv2.imshow("Display", self.frame_display)
             #cv2.imshow("framegfg", frame)
 
             cv2.waitKey(5)
