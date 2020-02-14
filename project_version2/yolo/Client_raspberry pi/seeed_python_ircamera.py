@@ -2,6 +2,7 @@ import sys
 import threading
 import seeed_mlx90640
 import time
+import numpy as np
 import os
 from serial import Serial
 from PyQt5.QtWidgets import (
@@ -47,7 +48,7 @@ def isDigital(value):
         return False
 
 
-hetaData = []
+hetaData = np.ones(shape=(768,), dtype="int8")
 lock = threading.Lock()
 minHue = 180
 maxHue = 360
