@@ -76,8 +76,8 @@ def image_het_mapping(img_het, corner=[[255, 265],
 
     # 온도이미지 mask 생성
     h, w = img_het.shape[:2]
-    rows = 640
-    cols = 480
+    rows = 480
+    cols = 640
 
     pts1 = np.float32([[w, 0], [0, 0], [w, h], [0, h]]) # 좌우반전 추가
     pts2 = np.float32([corner[0], corner[3], corner[1], corner[2]])
