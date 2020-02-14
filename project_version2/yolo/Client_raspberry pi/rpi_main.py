@@ -148,6 +148,9 @@ class GenerateDisplayImage(threading.Thread):
                 _frame = ipp.image_object(_frame, location_yolo[0], location_yolo[1],
                                           location_yolo[2], location_yolo[3])
 
+            print("dege : ", frame_edge.shape)
+            print("het : ", frame_het.shape)
+
             _frame = cv2.add(frame_edge, frame_het)
             self.frame_display = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
 
