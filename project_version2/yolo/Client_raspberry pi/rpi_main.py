@@ -116,9 +116,8 @@ class GenerateHetImage(threading.Thread):
             global hetaData
             global array_het
             global frame_het
-            print("hetaData : ", hetaData)
+
             array_het = ipp.flat2arr(hetaData)
-            print("array_het :", array_het)
             _frame_het = ipp.het_arr2img(array_het)
             frame_het = ipp.image_het_mapping(_frame_het, ipp.corner)
             time.sleep(0.01)
@@ -152,7 +151,7 @@ class GenerateDisplayImage(threading.Thread):
             self.frame_display = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
 
             cv2.imshow("het", frame_het)
-            cv2.imshow("Display", self.frame_display)
+            #cv2.imshow("Display", self.frame_display)
             #cv2.imshow("framegfg", frame)
 
             cv2.waitKey(5)
