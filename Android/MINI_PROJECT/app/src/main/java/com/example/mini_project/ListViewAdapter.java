@@ -60,7 +60,7 @@ public class ListViewAdapter extends BaseAdapter {
         // position에 위치한 데이터
         final ListViewItem listViewItem = listViewItemList.get(position);
 
-        iconImageView.setImageURI(Uri.parse(listViewItem.getPath()));
+        //iconImageView.setImageURI(Uri.parse(listViewItem.getPath()));
         titleTextView.setText(listViewItem.getTitle());
         descTextView.setText(listViewItem.getContent());
 
