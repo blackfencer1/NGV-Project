@@ -1,0 +1,117 @@
+<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/message"
+            android:layout_width="324dp"
+            android:layout_height="60dp"
+            android:gravity="center"
+            android:hint="지역을 입력하세요"
+            android:textColor="#000000"
+            android:textSize="16dp" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="검색"
+            android:background="@color/colorAccent"
+            android:textColor="#ffffff"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/weathericon"
+        android:layout_width="150dp"
+        android:layout_height="145dp"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:scaleType="fitXY"
+        android:src="@drawable/car" />
+
+    <TextView
+        android:id="@+id/location1"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:textSize="16dp"
+        android:text="위치"
+        android:background="@color/colorAccent"
+        android:textColor="#ffffff" />
+
+
+    <TextView
+        android:id="@+id/location2"
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:background="#ffffff"
+        android:gravity="center"
+        android:textColor="@color/colorAccent"
+        android:textSize="16dp" />
+
+    <TextView
+        android:id="@+id/condition1"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:textSize="16dp"
+        android:text="상태"
+        android:background="@color/colorAccent"
+        android:textColor="#ffffff" />
+
+    <TextView
+        android:id="@+id/condition2"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:textColor="@color/colorAccent"
+        android:textSize="16dp" />
+
+
+    <TextView
+        android:id="@+id/weather1"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:textSize="16dp"
+        android:text="온도"
+        android:background="@color/colorAccent"
+        android:textColor="#ffffff"
+        />
+
+
+    <TextView
+        android:id="@+id/weather2"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:textColor="@color/colorAccent"
+        android:textSize="16dp" />
+
+
+    <TextView
+        android:id="@+id/weather3"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:textSize="16dp"
+        android:text="습도"
+        android:background="@color/colorAccent"
+        android:textColor="#ffffff"/>
+
+    <TextView
+        android:id="@+id/weather4"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:textColor="@color/colorAccent"
+        android:textSize="16dp" />
+
+</LinearLayout>

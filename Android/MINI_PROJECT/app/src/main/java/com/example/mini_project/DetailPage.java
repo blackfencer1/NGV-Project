@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import github.vatsal.easyweather.retrofit.models.Main;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -79,7 +81,7 @@ public class DetailPage extends FragmentActivity implements OnMapReadyCallback {
         item = (ListViewItem) intent.getSerializableExtra("ITEM");
 
 
-        Log.e("실제경로2: ",item.getPath());
+        //Log.e("실제경로2: ",item.getPath());
 
         imageView.setImageURI(Uri.parse(item.getPath()));
         Title_detail.setText(item.getTitle());
@@ -89,6 +91,9 @@ public class DetailPage extends FragmentActivity implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 MainActivity.dbHelper.deleteListViewItem(item.get_id());
+                MainActivity.placeList.remove(item.get_id());
+                Toast.makeText(getApplicationContext(),"삭제한 아이템: "+MainActivity.placeList.get(item.get_id()).longitude
+                        +MainActivity.placeList.get(item.get_id()).latitude,Toast.LENGTH_SHORT).show();
 
                 ListFragment.itemlist = MainActivity.dbHelper.getAllListViewItemData();
                 ListFragment.adapter = new ListViewAdapter(ListFragment.itemlist, DetailPage.this);

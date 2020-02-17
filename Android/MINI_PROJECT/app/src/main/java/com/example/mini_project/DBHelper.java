@@ -115,7 +115,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
 
         db.execSQL(sb.toString());
-        Toast.makeText(context, "아이템 삭제", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "아이템 삭제", Toast.LENGTH_SHORT).show();
     }
 
 }

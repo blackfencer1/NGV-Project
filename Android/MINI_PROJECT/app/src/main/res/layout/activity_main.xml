@@ -10,8 +10,7 @@
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="?attr/actionBarSize">
-    </FrameLayout>
+        android:layout_marginBottom="?attr/actionBarSize"></FrameLayout>
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/bottom_navigation"

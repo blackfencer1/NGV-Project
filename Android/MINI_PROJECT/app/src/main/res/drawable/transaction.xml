@@ -1,0 +1,14 @@
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:drawable="@drawable/splash1"
+        android:duration="700"/>
+
+    <item
+        android:drawable="@drawable/splash2"
+        android:duration="700"/>
+
+    <item
+        android:drawable="@drawable/splash3"
+        android:duration="700"/>
+
+</animation-list>
