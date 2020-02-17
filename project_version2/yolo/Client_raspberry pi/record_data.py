@@ -60,10 +60,7 @@ def main():
     myHetImage = GenerateHetImage()
     myHetImage.start()
 
-    mySaveImage = SaveImage(IMAGE_NO, HET_NO)
-
-    myDetectFrame = DetectFrame()
-    myDetectFrame.start()
+    mySaveImage = SaveImage(IMAGE, HET)
 
     myDisplay = GenerateDisplayImage()
     myDisplay.start()

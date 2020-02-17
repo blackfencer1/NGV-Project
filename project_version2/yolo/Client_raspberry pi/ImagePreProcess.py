@@ -120,13 +120,9 @@ def het_arr2img(num_array):
             if num_array[i, j] > 5:
                 img[i, j] = color_black
             elif num_array[i, j] > 0:
-                img[i, j] = (100, 0, 0)
+                img[i, j] = (0, 0, 100)
             elif num_array[i, j] > -5:
-                img[i, j] = (180, 0, 0)
-            # elif num_array[i, j] > -10:
-            #     img[i, j] = (0, 0, 255)
-            # elif num_array[i, j] > -10:
-            #     img[i, j] = (255, 200, 200)
+                img[i, j] = (0, 0, 180)
             else:
                 img[i, j] = (0, 0, 255)
 
