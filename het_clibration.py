@@ -108,7 +108,9 @@ if __name__ == '__main__':
     path_read = './het_calibration_image'
     file_list_read = os.listdir(path_read)
 
-    img = cv2.imread("het_calibration_image/" + file_list_read[10])  # 이미지 읽기
+    #img = cv2.imread("het_calibration_image/" + file_list_read[10])  # 이미지 읽기
+    dummy = np.zeros(shape=(480, 640, 3), dtype="uint8")
+    img = cv2.rectangle(dummy, (10, 10), (630, 470), (0, 0, 255), 1000)
 
     # img = cv2.resize(img, (800, 480), interpolation=cv2.INTER_CUBIC)
     #img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -121,17 +123,17 @@ if __name__ == '__main__':
     corner_4 = [436, 270]
 
     ### box 생성 ###
-    img_box = make_box(img, corner_1[0], corner_1[1], 4, 4)
-    img_box = make_box(img_box, corner_2[0], corner_2[1], 4, 4)
-    img_box = make_box(img_box, corner_3[0], corner_3[1], 4, 4)
-    img_box = make_box(img_box, corner_4[0], corner_4[1], 4, 4)
+    #img_box = make_box(img, corner_1[0], corner_1[1], 4, 4)
+    #img_box = make_box(img_box, corner_2[0], corner_2[1], 4, 4)
+    #img_box = make_box(img_box, corner_3[0], corner_3[1], 4, 4)
+    #img_box = make_box(img_box, corner_4[0], corner_4[1], 4, 4)
     ################
 
     img_het = image_het(img, corner)
 
     #cv2.imshow('image', img)
     cv2.imshow('fsdfsdf', img_het)
-    cv2.imshow('box', img_box)
+    #cv2.imshow('box', img_box)
     cv2.waitKey(0)
 
     print("#### clibration end ####")
