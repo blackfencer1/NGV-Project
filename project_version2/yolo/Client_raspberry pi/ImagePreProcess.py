@@ -117,18 +117,18 @@ def het_arr2img(num_array):
     img = np.zeros((h, w, 3), dtype=np.uint8)
     for i in range(h):
         for j in range(w):
-            if num_array[i, j] > 10:
+            if num_array[i, j] > 5:
                 img[i, j] = color_black
-            elif num_array[i, j] > 5:
-                img[i, j] = (100, 0, 0)
             elif num_array[i, j] > 0:
-                img[i, j] = (200, 0, 0)
+                img[i, j] = (100, 0, 0)
             elif num_array[i, j] > -5:
-                img[i, j] = (255, 100, 100)
-            elif num_array[i, j] > -10:
-                img[i, j] = (255, 200, 200)
+                img[i, j] = (180, 0, 0)
+            # elif num_array[i, j] > -10:
+            #     img[i, j] = (0, 0, 255)
+            # elif num_array[i, j] > -10:
+            #     img[i, j] = (255, 200, 200)
             else:
-                img[i, j] = color_white
+                img[i, j] = (0, 0, 255)
 
     return img
 
@@ -293,7 +293,19 @@ def Find_BlackIce(het, yolo):
     return blackice
 
 
+def image_blackice(list_blackice):
+    result = cv2.zeros(shape=(480, 640, 3), dtype="uint8")
+    width = 640
+    height = 480
 
+    for i in range(height):
+        for j in range(width):
+            if list_blackice[i*640+j] is 1:
+                result[i, j] = color_black
+            else:
+                result[i, j] = (255, 255, 255)
+
+    return result
 
 
 

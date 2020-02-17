@@ -16,11 +16,13 @@ import seeed_python_ircamera as ir
 ######## 전역변수 #########
 frame = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_edge = np.zeros(shape=(480, 640, 3), dtype="uint8")
+frame_blackice = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_display = np.zeros(shape=(480, 800, 3), dtype="uint8")
 array_het = np.ones(shape=(32, 24, 1), dtype="int8")
 frame_het = np.zeros(shape=(480, 640, 3), dtype="uint8")
 location_yolo = [0]
 list_black_ice = []
+number_black_ice = 0
 
 IMAGE_NO = 0
 IMAGE = 1
@@ -67,7 +69,6 @@ def main():
     myDisplay.start()
 
     # IR CAMERA
-    #app = ir.QApplication()
     dataThread = ir.DataReader(None)
     dataThread.start()
 
@@ -259,6 +260,7 @@ class GenerateDisplayImage(threading.Thread):
         global frame_edge
         global frame_display
         global frame_het
+        global frame_blackice
         global location_yolo
         while True:
             # frame = ipp.merge_image_het(frame_edge, frame_het)
@@ -269,10 +271,11 @@ class GenerateDisplayImage(threading.Thread):
                 pass
             else:
                 print("##### Wet Road is DETECTED! #####")
-                _frame = ipp.image_object(_frame, location_yolo[0], location_yolo[1],
-                                          location_yolo[2], location_yolo[3])
+                _frame = cv2.add(_frame, frame_blackice)
+                # _frame = ipp.image_object(_frame, location_yolo[0], location_yolo[1],
+                #                           location_yolo[2], location_yolo[3])
 
-            _frame = cv2.add(frame_edge, frame_het)
+            _frame = cv2.add(_frame, frame_het)
             self.frame_display = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
 
             #cv2.imshow("het", frame_het)
@@ -294,14 +297,30 @@ class FindBlackIce(threading.Thread):
         global frame_het
         global location_yolo
         global list_black_ice
+        global number_black_ice
+        global frame_blackice
         while True:
-            if len(list_black_ice) is 0:
+            number_black_ice = 0
+
+            if len(location_yolo) is 0: #yolo에서 받은 값이 없으면 detect X
                 print("###### no black ice #######")
+                time.sleep(0.1)
             else:
-                print("###### black ice!!  #######")
                 self.list_yolo = ipp.yolo_arr2flat(location_yolo)
                 self.list_het = ipp.image_het2flat(frame_het)
                 list_black_ice = ipp.Find_BlackIce(self.list_het, self.list_yolo)
+                image_black_ice = ipp.image_blackice(list_black_ice)
+
+            # list중에서 1이 있으면 개수 카운트
+            for i in range(len(list_black_ice)):
+                if list_black_ice[i] is 1:
+                    number_black_ice += 1
+            print("### Count Black ice Pixel ### -> ", number_black_ice)
+
+            time.sleep(0.1)
+
+
+
 
     def shutdown(self):
         pass
