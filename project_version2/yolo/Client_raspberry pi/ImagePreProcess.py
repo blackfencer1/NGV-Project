@@ -117,7 +117,15 @@ def het_arr2img(num_array):
     img = np.zeros((h, w, 3), dtype=np.uint8)
     for i in range(h):
         for j in range(w):
-            if num_array[i, j] > 5:
+            if num_array[i, j] < -5:
+                img[i, j] = (0, 0, 255)
+            elif num_array[i, j] < 0:
+                img[i, j] = (0, 0, 180)
+            elif num_array[i, j] < 5:
+                img[i, j] = (0, 0, 100)
+            else:
+                img[i, j] = color_black
+            '''    
                 img[i, j] = color_black
             elif num_array[i, j] > 0:
                 img[i, j] = (0, 0, 100)
@@ -125,6 +133,7 @@ def het_arr2img(num_array):
                 img[i, j] = (0, 0, 180)
             else:
                 img[i, j] = (0, 0, 255)
+            '''
 
     return img
 
