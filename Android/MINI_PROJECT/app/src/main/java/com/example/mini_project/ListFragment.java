@@ -21,6 +21,7 @@ import java.util.List;
  */
 public class ListFragment extends Fragment {
 
+
     static ListView listView;
     static ListViewAdapter adapter;
     static List itemlist;
