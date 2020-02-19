@@ -1,6 +1,7 @@
 '''
 2020.02.13. - add socket
 2020.02.15. - rpi: Server /laptop(yolo): Client
+2020.02.19. - camera image from html
 '''
 import os
 import cv2
@@ -49,8 +50,9 @@ def main():
     global frame
     global hetaData
 
-    cam = cv2.VideoCapture(0)
-
+    cam = cv2.VideoCapture('http://192.168.0.105:8081/video?dummy=param.mjpg')
+    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+    
     # Thread start
     myDetectLine = DetectLane()
     myDetectLine.start()
@@ -59,7 +61,7 @@ def main():
 
     mySaveImage = SaveImage(IMAGE_NO, HET_NO)
 
-    m#yDetectFrame = DetectFrame()
+    #myDetectFrame = DetectFrame()
     #myDetectFrame.start()
 
     myRecvCoord = RecvCoord()
