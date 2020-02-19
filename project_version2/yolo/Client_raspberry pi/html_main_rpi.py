@@ -1,6 +1,7 @@
 '''
 2020.02.13. - add socket
 2020.02.15. - rpi: Server /laptop(yolo): Client
+2020.02.19. - camera image from html
 '''
 import os
 import cv2
@@ -49,8 +50,9 @@ def main():
     global frame
     global hetaData
 
-    cam = cv2.VideoCapture(0)
-
+    cam = cv2.VideoCapture('http://192.168.0.105:8081/video?dummy=param.mjpg')
+    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+    
     # Thread start
     myDetectLine = DetectLane()
     myDetectLine.start()
@@ -59,8 +61,11 @@ def main():
 
     mySaveImage = SaveImage(IMAGE_NO, HET_NO)
 
-    myDetectFrame = DetectFrame()
-    myDetectFrame.start()
+    #myDetectFrame = DetectFrame()
+    #myDetectFrame.start()
+
+    myRecvCoord = RecvCoord()
+    myRecvCoord.start()
 
     myDisplay = GenerateDisplayImage()
     myDisplay.start()
@@ -144,11 +149,11 @@ class SaveImage(threading.Thread):
         # Het image
         if not (os.path.isdir("./het_data")):
             os.makedirs(os.path.join("het_data"))
-        '''
+
         # Coordinate
         if not (os.path.isdir("./coord_data")):
             os.makedirs(os.path.join("coord_data"))
-        '''
+
         time.sleep(2)
 
         # Camera Image
@@ -207,12 +212,12 @@ class SaveImage(threading.Thread):
         pass
 
 
-# TELECOMMUNICATION: DETECTION DATA
+'''
 class DetectFrame(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        # Input server IP
-        self.host = "192.168.0.122"
+        # Input server IP = raspberry pi
+        self.host = "192.168.255.21"
         self.port = 4000
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.connect((self.host, self.port))
@@ -225,25 +230,45 @@ class DetectFrame(threading.Thread):
             f = open("./cam_data/image.jpg", 'rb')
             frame_data = f.read()
             print("Read file: cam_data...")
-            if frame_data:
-                self.server_socket.send(str(len(frame_data)).ljust(16).encode())
-                self.server_socket.send(frame_data)
-                print('Send camera image successfully!')
+           
+            self.server_socket.send(str(len(frame_data)).ljust(16).encode())
+            self.server_socket.send(frame_data)
+            print('Send camera image successfully!')
+            time.sleep(4)
+'''
 
-            else:
-                print('No Image')
 
+# TELECOMMUNICATION: DETECTION DATA
+class RecvCoord(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        # Input server IP = raspberry pi
+        self.host = "192.168.255.21"
+        self.port = 4000
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket.connect((self.host, self.port))
+        self.server_socket.bind((host, port))
+        self.server_socket.listen(5)
+        print('Server Socket is listening')
+    
+    def run(self):
+        global location_yolo
+        while True:
+            # establish connection with client
+            conn, addr = self.server_socket.accept()
+            print('Connected to :', addr[0], ':', addr[1])
+            
             # RECEIVE COORDINATES FROM YOLO
             coord_data = self.server_socket.recv(1024)
-            location_yolo = coord_data
-            print("coordinates Update!", coord_data)
-            '''
-            with open("./coord_data/coordinates.txt", 'w') as my_file:
+            location_yolo = str(coord_data)
+            print("coordinates Update!", str(coord_data))
+
+            with open("./coord_data/coordinates.txt", 'a') as my_file:
                 print("receiving coordinates...")
                 my_file.write(str(coord_data))
                 print("coord : ", str(coord_data))
                 my_file.close()
-            '''
+            time.sleep(2)
 
 
 # IMAGE FOR DISPLAY
@@ -265,6 +290,7 @@ class GenerateDisplayImage(threading.Thread):
 
             if location_yolo[0] is 0:
                 print("### Wet Road is not detected... ####")
+                time.sleep(4)
                 pass
             else:
                 print("##### Wet Road is DETECTED! #####")
