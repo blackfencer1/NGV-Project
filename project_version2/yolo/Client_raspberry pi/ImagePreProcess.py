@@ -161,7 +161,7 @@ def flat2arr(csv):
     for i in range(32):
         for j in range(24):
             #arr[i, j] = csv[i * 24 + j]
-            arr[i, j] = csv[i * 24 + j] - 25
+            arr[i, j] = csv[i * 24 + j] - 12
 
     return arr
 
@@ -262,12 +262,8 @@ def image_het2flat(image_het):
 
     for i in range(height):
         for j in range(width):
-            if img_het[i, j] is (255, 100, 100):
-                result[i*width + j] = (1)
-            elif img_het[i, j] is (255, 200, 200):
-                result[i*width + j] = (1)
-            elif img_het[i, j] is (255, 255, 255):
-                result[i*width + j] = (1)
+            if img_het[i, j, 2] > 50:
+                result[i*width + j] = 1
             else:
                 result[i*width + j] = (0)
 
@@ -305,7 +301,7 @@ def image_blackice(list_blackice):
 
     for i in range(height):
         for j in range(width):
-            if list_blackice[i*640+j] is 1:
+            if list_blackice[i*width+j] is 1:
                 result[i, j] = color_black
             else:
                 result[i, j] = (255, 255, 255)

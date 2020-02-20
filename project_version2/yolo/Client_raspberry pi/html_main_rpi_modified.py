@@ -83,7 +83,6 @@ def main():
     while True:
         _, frame = cam.read()
 
-        #frame = ipp.rotation_image(_frame, 180)
         time.sleep(0.05)
 
     cam.release()
@@ -117,7 +116,6 @@ class DetectLane(threading.Thread):
 class GenerateHetImage(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.frame_het = np.zeros(shape=(480, 640, 3), dtype="uint8")
         time.sleep(5)
         print("[Thread] Generate Image(Het)")
 
@@ -148,14 +146,20 @@ class DetectBlackIce(threading.Thread):
         global frame_blackice
         while True:
             if location_yolo[0] == 0:
+                print("$$$$ location_yolo == 0")
                 frame_blackice = np.zeros(shape=(480, 640, 3), dtype="uint8")
+                time.sleep(1)
             elif len(location_yolo) == 4:
+                print("$$$$ location_yolo == 4 : ", location_yolo)
                 list_yolo = np.array(ipp.yolo_arr2flat(location_yolo))
                 list_het = np.array(ipp.image_het2flat(frame_het))
                 list_blackice = list_yolo * list_het
                 frame_blackice = ipp.image_blackice(list_blackice)
+                "Successfully! Make BlackIce Image!"
+                time.sleep(1)
             else:
                 print("pass")
+                time.sleep(1)
                 pass
 
 
@@ -310,21 +314,11 @@ class GenerateDisplayImage(threading.Thread):
         global frame_edge
         global frame_display
         global frame_het
-        global location_yolo
+        global frame_blackice
         while True:
-            # frame = ipp.merge_image_het(frame_edge, frame_het)
-            _frame = frame_edge  # 임시방편
-
-            if location_yolo[0] is 0:
-                print("### Wet Road is not detected... ####")
-                time.sleep(4)
-                pass
-            else:
-                print("##### Wet Road is DETECTED! #####")
-                _frame = ipp.image_object(_frame, location_yolo[0], location_yolo[1],
-                                          location_yolo[2], location_yolo[3])
-
             _frame = cv2.add(frame_edge, frame_het)
+            _frame = cv2.add(_frame, frame_blackice)
+
             self.frame_display = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
 
             #cv2.imshow("het", frame_het)

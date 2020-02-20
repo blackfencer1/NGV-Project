@@ -67,7 +67,7 @@ class DataReader(QThread):
         # i2c mode
         if port is None:
             self.dataHandle = seeed_mlx90640.grove_mxl90640()
-            self.dataHandle.refresh_rate = seeed_mlx90640.RefreshRate.REFRESH_8_HZ
+            self.dataHandle.refresh_rate = seeed_mlx90640.RefreshRate.REFRESH_4_HZ
             self.readData = self.i2cRead
         else:
             self.MODE = DataReader.SERIAL
