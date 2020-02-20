@@ -1,8 +1,13 @@
 '''
+
 2020.02.13. - add socket
+
 2020.02.15. - rpi: Server /laptop(yolo): Client
+
 2020.02.19. - camera image from html
+
 '''
+
 import os
 import cv2
 import numpy as np
@@ -15,23 +20,24 @@ import seeed_python_ircamera as ir
 
 
 ######## 전역변수 #########
+
 frame = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_edge = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_display = np.zeros(shape=(480, 800, 3), dtype="uint8")
-array_het = np.zeros(shape=(32, 24, 1), dtype="int8")
+array_het = np.ones(shape=(32, 24, 1), dtype="int8")
 frame_het = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_blackice = np.zeros(shape=(480, 640, 3), dtype="uint8")
 location_yolo = [0]
+
 
 IMAGE_NO = 0
 IMAGE = 1
 IMAGE_DISPLAY = 2
 IMAGE_HET = 3
 
+
 HET_NO = 0
 HET = 1
-
-
 ###########################
 
 # 온도센서
@@ -42,23 +48,29 @@ maxHue = 360
 
 
 def main():
+
     """
     BlackFencer System의 main
     전역변수 frame을 사용하여 usb카메라의 사진을 저장하고
     각종 스레드들을 생성, 실행한다.
     :return: Nothing
     """
+
     global frame
     global hetaData
 
-    cam = cv2.VideoCapture('http://192.168.0.105:8081/video?dummy=param.mjpg')
+
+
+    cam = cv2.VideoCapture('http://192.168.0.116:8081/video?dummy=param.mjpg')
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
-    
+
     # Thread start
     myDetectLine = DetectLane()
     myDetectLine.start()
     myHetImage = GenerateHetImage()
     myHetImage.start()
+    myDetectBlackIce = DetectBlackIce()
+    myDetectBlackIce.start()
 
     mySaveImage = SaveImage(IMAGE_NO, HET_NO)
 
@@ -76,13 +88,14 @@ def main():
     dataThread = ir.DataReader(None)
     dataThread.start()
 
+
     # CAMERA
     _, frame = cam.read()
     mySaveImage.start()
     while True:
         _, frame = cam.read()
-
         #frame = ipp.rotation_image(_frame, 180)
+
         time.sleep(0.05)
 
     cam.release()
@@ -91,29 +104,44 @@ def main():
 
 # Lane Detecting Thread
 class DetectLane(threading.Thread):
+
     def __init__(self):
         threading.Thread.__init__(self)
         self.frame = np.zeros(shape=(480, 640, 3), dtype="uint8")
         print("[Thread] Generate Image(Detect Lane)")
 
     def run(self):
+
         while True:
+
             global frame_edge
+
             global frame
+
             self.frame = frame
+
             self.frame = ipp.filter_edge(self.frame)
+
             # self.frame = ipp.detect_lane(self.frame)
+
             img_hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
+
             mask = cv2.inRange(img_hsv, np.array([0, 0, 100]), np.array([255, 255, 255]))
+
             frame_edge = cv2.bitwise_and(self.frame, self.frame, mask=mask)
+
             time.sleep(0.01)
 
+
+
     def shutdown(self):
+
         pass
 
 
 # HetImage Generation Thread
 class GenerateHetImage(threading.Thread):
+
     def __init__(self):
         threading.Thread.__init__(self)
         self.frame_het = np.zeros(shape=(480, 640, 3), dtype="uint8")
@@ -135,6 +163,31 @@ class GenerateHetImage(threading.Thread):
         pass
 
 
+# Detect BlackIce Thread
+class DetectBlackIce(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        print("[Thread] Detect Black Ice (YOLO & HET)")
+
+    def run(self):
+        global location_yolo
+        global frame_het
+        global frame_blackice
+        while True:
+            if location_yolo[0] == 0:
+                frame_blackice = np.zeros(shape=(480, 640, 3), dtype="uint8")
+            elif len(location_yolo) == 4:
+                list_yolo = np.array(ipp.yolo_arr2flat(location_yolo))
+                list_het = np.array(ipp.image_het2flat(frame_het))
+                list_blackice = list_yolo * list_het
+                frame_blackice = ipp.image_blackice(list_blackice)
+            else:
+                print("pass")
+                pass
+
+
+
+
 # SAVE IMAGE
 class SaveImage(threading.Thread):
     def __init__(self, option_image, option_het):
@@ -147,6 +200,7 @@ class SaveImage(threading.Thread):
         # Camera image
         if not (os.path.isdir("./cam_data")):
             os.makedirs(os.path.join("cam_data"))
+
         # Het image
         if not (os.path.isdir("./het_data")):
             os.makedirs(os.path.join("het_data"))
@@ -166,6 +220,7 @@ class SaveImage(threading.Thread):
             print("[Thread] Save Image{}".format(" Display"))
         else:
             print("[Thread] Wrong image option!")
+
 
         # Temperature Image
         if self.option_het is HET_NO:
@@ -192,11 +247,13 @@ class SaveImage(threading.Thread):
             elif self.option_image is IMAGE_DISPLAY:
                 cv2.imwrite("./cam_data/image.jpg", frame_display)
                 pass
+
                 # 저장
             elif self.option_image is IMAGE_HET:
                 cv2.imwrite("./het_data/image{0:0>5}.jpg".format(self.count), frame_het)
                 pass
                 # 저장
+
             else:
                 pass
 
@@ -213,6 +270,9 @@ class SaveImage(threading.Thread):
         pass
 
 
+
+
+
 '''
 class DetectFrame(threading.Thread):
     def __init__(self):
@@ -223,20 +283,42 @@ class DetectFrame(threading.Thread):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.connect((self.host, self.port))
         print("connected")
-
+ 
     def run(self):
         global location_yolo
+
         while True:
+
             # SEND FRAME TO YOLO
+
             f = open("./cam_data/image.jpg", 'rb')
+
             frame_data = f.read()
+
             print("Read file: cam_data...")
+
            
+
             self.server_socket.send(str(len(frame_data)).ljust(16).encode())
+
             self.server_socket.send(frame_data)
+
             print('Send camera image successfully!')
+
             time.sleep(4)
+
 '''
+
+
+
+def recvall(sock, count):
+    buf = b''
+    while count:
+        newbuf = sock.recv(count)
+        if not newbuf:
+            return 512
+        buf += newbuf
+        count -= len(newbuf)
 
 
 # TELECOMMUNICATION: DETECTION DATA
@@ -244,25 +326,73 @@ class RecvCoord(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         # Input server IP = raspberry pi
-        self.host = "192.168.255.21"
+        self.host = "192.168.0.116"
         self.port = 4000
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.connect((self.host, self.port))
-        self.server_socket.bind((host, port))
+        self.server_socket.bind((self.host, self.port))
         self.server_socket.listen(5)
         print('Server Socket is listening')
-    
+
     def run(self):
         global location_yolo
         while True:
             # establish connection with client
             conn, addr = self.server_socket.accept()
             print('Connected to :', addr[0], ':', addr[1])
-            
+
             # RECEIVE COORDINATES FROM YOLO
-            coord_data = self.server_socket.recv(1024)
-            location_yolo = str(coord_data)
-            print("coordinates Update!", str(coord_data))
+            coord_data = conn.recv(1024)
+            #length = recvall(conn, 16)
+            #print("length : ", length)
+            #coord_data = recvall(conn, int(length))
+            print("coord : ", coord_data)
+            data = str(coord_data).replace('b', '')
+            data = str(data).replace('\'', '')
+            data = data.split(',')
+            print("data : ", data)
+
+            if data[0] == '0':
+                location_yolo = [0]
+            else:
+                location_yolo[0] = int(data[0])
+                location_yolo.append(int(data[1]))
+                location_yolo.append(int(data[2]))
+                location_yolo.append(int(data[3]))
+                print("lioction yolo : ", location_yolo)
+
+            ## data preprocess
+            #data = str(coord_data).replace('\'', '')
+            #data = data.replace('b', '')
+
+            '''
+            if data == '0':
+
+                print("##### location is 0 ######")
+
+                location_yolo = [0]
+
+                print("location : ", location_yolo)
+
+            else:
+
+                print("##### location is ready ##########")
+
+                list_data = data.split(',')
+
+                location_yolo = int(list_data[0])
+
+                location_yolo.append(int(list_data[1]))
+
+                location_yolo.append(int(list_data[2]))
+
+                location_yolo.append(int(list_data[3]))
+
+                print("location : ", location_yolo)
+
+            '''
+
+            ##
+
 
             with open("./coord_data/coordinates.txt", 'a') as my_file:
                 print("receiving coordinates...")
@@ -301,16 +431,17 @@ class GenerateDisplayImage(threading.Thread):
             _frame = cv2.add(frame_edge, frame_het)
             self.frame_display = cv2.resize(_frame, (800, 480), interpolation=cv2.INTER_CUBIC)
 
-            #cv2.imshow("het", frame_het)
+            # cv2.imshow("het", frame_het)
             cv2.imshow("Display", self.frame_display)
-            #cv2.imshow("framegfg", frame)
+            # cv2.imshow("framegfg", frame)
 
             cv2.waitKey(5)
 
     def shutdown(self):
         pass
 
-
 if __name__ == '__main__':
+
     print("### main start ###")
+
     main()
