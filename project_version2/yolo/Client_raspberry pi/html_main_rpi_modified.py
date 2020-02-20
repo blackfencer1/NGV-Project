@@ -274,25 +274,40 @@ class RecvCoord(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         # Input server IP = raspberry pi
-        self.host = "192.168.255.21"
+        self.host = "192.168.0.116"
         self.port = 4000
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.connect((self.host, self.port))
-        self.server_socket.bind((host, port))
+        self.server_socket.bind((self.host, self.port))
         self.server_socket.listen(5)
         print('Server Socket is listening')
-    
+
     def run(self):
         global location_yolo
         while True:
             # establish connection with client
             conn, addr = self.server_socket.accept()
             print('Connected to :', addr[0], ':', addr[1])
-            
+
             # RECEIVE COORDINATES FROM YOLO
-            coord_data = self.server_socket.recv(1024)
-            location_yolo = str(coord_data)
-            print("coordinates Update!", str(coord_data))
+            coord_data = conn.recv(1024)
+            #length = recvall(conn, 16)
+            #print("length : ", length)
+            #coord_data = recvall(conn, int(length))
+            print("coord : ", coord_data)
+            data = str(coord_data).replace('b', '')
+            data = str(data).replace('\'', '')
+            data = data.split(',')
+            print("data : ", data)
+
+            if data[0] == '0':
+                location_yolo = [0]
+            else:
+                location_yolo[0] = int(data[0])
+                location_yolo.append(int(data[1]))
+                location_yolo.append(int(data[2]))
+                location_yolo.append(int(data[3]))
+                print("lioction yolo : ", location_yolo)
+
 
             with open("./coord_data/coordinates.txt", 'a') as my_file:
                 print("receiving coordinates...")
@@ -300,7 +315,6 @@ class RecvCoord(threading.Thread):
                 print("coord : ", str(coord_data))
                 my_file.close()
             time.sleep(2)
-
 
 # IMAGE FOR DISPLAY
 class GenerateDisplayImage(threading.Thread):
