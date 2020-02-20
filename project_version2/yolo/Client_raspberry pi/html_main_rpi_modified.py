@@ -18,7 +18,7 @@ import seeed_python_ircamera as ir
 frame = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_edge = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_display = np.zeros(shape=(480, 800, 3), dtype="uint8")
-array_het = np.zeros(shape=(32, 24, 1), dtype="int8")
+array_het = np.ones(shape=(32, 24, 1), dtype="int8")
 frame_het = np.zeros(shape=(480, 640, 3), dtype="uint8")
 frame_blackice = np.zeros(shape=(480, 640, 3), dtype="uint8")
 location_yolo = [0]
@@ -104,7 +104,7 @@ class DetectLane(threading.Thread):
             self.frame = ipp.filter_edge(self.frame)
             # self.frame = ipp.detect_lane(self.frame)
             img_hsv = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
-            mask = cv2.inRange(img_hsv, np.array([0, 0, 100]), np.array([255, 255, 255]))
+            mask = cv2.inRange(img_hsv, np.array([0, 0, 40]), np.array([255, 255, 255]))
             frame_edge = cv2.bitwise_and(self.frame, self.frame, mask=mask)
             time.sleep(0.01)
 
@@ -133,6 +133,24 @@ class GenerateHetImage(threading.Thread):
 
     def shutdown(self):
         pass
+
+
+# Detect BlackIce Thread
+class DetectBlackIce(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        print("[Thread] Detect Black Ice (YOLO & HET)")
+
+    def run(self):
+        global location_yolo
+        global frame_het
+        global frame_blackice
+        while True:
+            if location_yolo[0] == 0:
+                frame_blackice = np.zeros(shape=(480, 640, 3), dtype="uint8")
+            else:
+                print()
+
 
 
 # SAVE IMAGE
