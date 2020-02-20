@@ -59,7 +59,8 @@ def main():
     myDetectLine.start()
     myHetImage = GenerateHetImage()
     myHetImage.start()
-
+    myDetectBlackIce = DetectBlackIce()
+    myDetectBlackIce.start()
     mySaveImage = SaveImage(IMAGE_NO, HET_NO)
 
     #myDetectFrame = DetectFrame()
@@ -148,9 +149,15 @@ class DetectBlackIce(threading.Thread):
         while True:
             if location_yolo[0] == 0:
                 frame_blackice = np.zeros(shape=(480, 640, 3), dtype="uint8")
+            elif len(location_yolo) == 4:
+                list_yolo = np.array(ipp.yolo_arr2flat(location_yolo))
+                list_het = np.array(ipp.image_het2flat(frame_het))
+                list_blackice = list_yolo * list_het
+                frame_blackice = ipp.image_blackice(list_blackice)
             else:
-                list_yolo = ipp.yolo_arr2flat(location_yolo)
-                list_het = ipp.image_het2flat(frame_het)
+                print("pass")
+                pass
+
 
 
 
