@@ -149,7 +149,8 @@ class DetectBlackIce(threading.Thread):
             if location_yolo[0] == 0:
                 frame_blackice = np.zeros(shape=(480, 640, 3), dtype="uint8")
             else:
-                print()
+                list_yolo = ipp.yolo_arr2flat(location_yolo)
+                list_het = ipp.image_het2flat(frame_het)
 
 
 
